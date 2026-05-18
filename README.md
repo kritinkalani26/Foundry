@@ -2,15 +2,13 @@
 
 > Every tool. Every city. One platform.
 
-Foundry connects people who need access to fabrication equipment — 3D printers, laser cutters, CNC mills, lathes, water jets, and more — with verified local space owners across India's tier-2 cities.
+Foundry connects people who need access to fabrication equipment — 3D printers, laser cutters, CNC mills, lathes, water jets, and more — with verified local space owners across India's tier-2 cities. This is something I am just starting in India, but this will be useful around the world, including the US. I will expand it to other countries, based on pricing data from there.
 
 **Live demo:** `npm run dev` → `http://localhost:3000`
 
 ---
 
 ## The Problem
-
-India's metros (Mumbai, Bangalore, Delhi) have hundreds of makerspaces and fabrication shops. Cities like **Kota, Indore, Patna, Nagpur, and Bhopal** — home to millions of engineering students, small manufacturers, and hobbyists — have almost none.
 
 A student in Kota who needs a custom drone part fabricated, a small business in Indore that needs laser-cut acrylic panels, a PCB prototype needed in Patna — all of them either pay 4–5× for shipping from metros, wait weeks, or simply don't make the thing.
 
@@ -269,7 +267,7 @@ User ──< Order ──< OrderStatusHistory
 
 ## Why This Matters
 
-India has ~5 million engineering students. The majority study in tier-2 cities where fabrication access is near-zero. Physical prototyping is foundational to engineering education — it's the difference between understanding a concept and building something real.
+India has ~3 million engineering students. The majority study in tier-2 cities where fabrication access is near-zero. Physical prototyping is foundational to engineering education — it's the difference between understanding a concept and building something real.
 
 Beyond students: tier-2 India has a growing class of small manufacturers, repair shops, and solo founders who need fabrication on-demand. The total addressable market is not a niche — it's the next 300 million people coming online with something to build.
 
