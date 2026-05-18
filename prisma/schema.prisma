@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  PRINTER_OWNER
+  ADMIN
+}
+
+enum PrinterType {
+  FDM
+  SLA
+  RESIN
+}
+
+enum OrderStatus {
+  UPLOADED
+  QUOTED
+  CONFIRMED
+  PRINTING
+  QUALITY_CHECK
+  READY
+  DELIVERED
+}
+
+enum Material {
+  PLA
+  ABS
+  PETG
+  RESIN
+}
+
+// ─────────────────────────────────────────────
+// CORE MODELS
+// ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  city      String?
+  lat       Float?
+  lng       Float?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders       Order[]      @relation("CustomerOrders")
+  printerOwner PrinterOwner?
+
+  @@index([email])
+  @@index([city])
+}
+
+model PrinterOwner {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  businessName    String?
+  description     String?
+  rating          Float   @default(5.0)
+  totalRatings    Int     @default(0)
+  isActive        Boolean @default(true)
+  // Hidden from matching if composite rating < 3.5
+  isVisible       Boolean @default(true)
+  // Surge pricing multiplier 1.0 to 1.5 (set when high demand detected)
+  surgeMultiplier Float   @default(1.0)
+  totalEarned     Float   @default(0.0)
+  pendingPayout   Float   @default(0.0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  printers Printer[]
+  quotes   Quote[]
+  ratings  Rating[]
+
+  @@index([isVisible, isActive])
+}
+
+model Printer {
+  id        String      @id @default(cuid())
+  ownerId   String
+  name      String
+  type      PrinterType
+  // Max build volume in mm
+  maxBuildX Float
+  maxBuildY Float
+  maxBuildZ Float
+  // JSON array of Material enum values e.g. ["PLA","ABS"]
+  materials String[]
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  owner PrinterOwner @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+}
+
+model STLAnalysis {
+  id                   String   @id @default(cuid())
+  fileName             String
+  fileSizeBytes        Int
+  volumeCm3            Float
+  surfaceAreaCm2       Float
+  boundingBoxXMm       Float
+  boundingBoxYMm       Float
+  boundingBoxZMm       Float
+  triangleCount        Int
+  // Estimated hours at default settings (0.2mm layer, 30% infill, PLA)
+  estimatedPrintHours  Float
+  needsSupport         Boolean  @default(false)
+  cloudinaryPublicId   String?
+  cloudinaryUrl        String?
+  createdAt            DateTime @default(now())
+
+  orders Order[]
+
+  @@index([createdAt])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerId      String
+  status          OrderStatus @default(UPLOADED)
+  stlAnalysisId   String?
+  material        Material    @default(PLA)
+  infillDensity   Float       @default(0.30) // 0.15 | 0.30 | 0.50 | 0.80
+  layerHeight     Float       @default(0.20) // 0.10 | 0.20 | 0.30
+  quantity        Int         @default(1)
+  estimatedPrice  Float?      // from algo
+  totalPrice      Float?      // from accepted quote
+  city            String
+  lat             Float
+  lng             Float
+  // Set after quote acceptance
+  acceptedQuoteId String?
+  // Completion photo uploaded by owner before marking READY
+  completionPhoto String?
+  // Computed on PRINTING state from STL analysis
+  estimatedCompletionAt DateTime?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  customer      User                 @relation("CustomerOrders", fields: [customerId], references: [id])
+  stlAnalysis   STLAnalysis?         @relation(fields: [stlAnalysisId], references: [id])
+  statusHistory OrderStatusHistory[]
+  quotes        Quote[]
+  rating        Rating?
+
+  @@index([customerId])
+  @@index([city, status])
+  @@index([status])
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  status    OrderStatus
+  timestamp DateTime    @default(now())
+  note      String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Quote {
+  id             String   @id @default(cuid())
+  orderId        String
+  printerOwnerId String
+  price          Float
+  turnaroundDays Int
+  message        String?
+  isAccepted     Boolean  @default(false)
+  // Auto-expires if not accepted in 2 hours
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  printerOwner PrinterOwner @relation(fields: [printerOwnerId], references: [id])
+
+  @@index([orderId])
+  @@index([printerOwnerId])
+}
+
+model Rating {
+  id             String   @id @default(cuid())
+  orderId        String   @unique
+  printerOwnerId String
+  // Individual dimension scores 1-5
+  printQuality   Int
+  accuracy       Int
+  packaging      Int
+  // Weighted composite: quality 50%, accuracy 35%, packaging 15%
+  compositeScore Float
+  comment        String?
+  createdAt      DateTime @default(now())
+
+  order        Order        @relation(fields: [orderId], references: [id])
+  printerOwner PrinterOwner @relation(fields: [printerOwnerId], references: [id])
+
+  @@index([printerOwnerId])
+}
+
+// Tracks daily order volume per city for surge pricing detection
+model DemandMetric {
+  id         String   @id @default(cuid())
+  city       String
+  date       DateTime @db.Date
+  orderCount Int      @default(0)
+
+  @@unique([city, date])
+  @@index([city, date])
+}
