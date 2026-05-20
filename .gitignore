@@ -40,3 +40,10 @@ next-env.d.ts
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+
+# Claude Code local settings
+.claude/
+
+# Dev server logs
+dev-out.txt
+dev-err.txt
