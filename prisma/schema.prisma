@@ -45,39 +45,119 @@ enum Material {
 // ─────────────────────────────────────────────
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  phone     String?
-  role      Role     @default(CUSTOMER)
-  city      String?
-  lat       Float?
-  lng       Float?
-  avatarUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String
+  passwordHash        String?
+  phone               String?   @unique
+  phoneVerified       Boolean   @default(false)
+  role                Role      @default(CUSTOMER)
+  city                String?
+  lat                 Float?
+  lng                 Float?
+  avatarUrl           String?
+  // Account lockout
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  // Password reset
+  resetToken          String?
+  resetTokenExpiry    DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  orders       Order[]      @relation("CustomerOrders")
-  printerOwner PrinterOwner?
+  orders        Order[]       @relation("CustomerOrders")
+  printerOwner  PrinterOwner?
+  addresses     Address[]
+  benefits      UserBenefit[]
+  subscription  Subscription?
+  paymentEvents PaymentEvent[]
 
   @@index([email])
   @@index([city])
 }
 
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  label     String
+  lineOne   String
+  lineTwo   String?
+  city      String
+  state     String
+  pincode   String
+  country   String   @default("India")
+  lat       Float
+  lng       Float
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserBenefit {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String
+  description String
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Subscription {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  plan               String
+  status             String
+  razorpaySubId      String?
+  stripeSubId        String?
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelledAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PaymentEvent {
+  id         String   @id @default(cuid())
+  orderId    String?
+  userId     String
+  type       String
+  amount     Float
+  currency   String   @default("INR")
+  provider   String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([orderId])
+}
+
 model PrinterOwner {
-  id              String  @id @default(cuid())
-  userId          String  @unique
+  id              String   @id @default(cuid())
+  userId          String   @unique
   businessName    String?
   description     String?
-  rating          Float   @default(5.0)
-  totalRatings    Int     @default(0)
-  isActive        Boolean @default(true)
-  // Hidden from matching if composite rating < 3.5
-  isVisible       Boolean @default(true)
-  // Surge pricing multiplier 1.0 to 1.5 (set when high demand detected)
-  surgeMultiplier Float   @default(1.0)
-  totalEarned     Float   @default(0.0)
-  pendingPayout   Float   @default(0.0)
+  rating          Float    @default(5.0)
+  totalRatings    Int      @default(0)
+  isActive        Boolean  @default(true)
+  isVisible       Boolean  @default(true)
+  surgeMultiplier Float    @default(1.0)
+  totalEarned     Float    @default(0.0)
+  pendingPayout   Float    @default(0.0)
+  bankAccount     String?
+  bankIfsc        String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -94,11 +174,9 @@ model Printer {
   ownerId   String
   name      String
   type      PrinterType
-  // Max build volume in mm
   maxBuildX Float
   maxBuildY Float
   maxBuildZ Float
-  // JSON array of Material enum values e.g. ["PLA","ABS"]
   materials String[]
   isActive  Boolean     @default(true)
   createdAt DateTime    @default(now())
@@ -109,21 +187,20 @@ model Printer {
 }
 
 model STLAnalysis {
-  id                   String   @id @default(cuid())
-  fileName             String
-  fileSizeBytes        Int
-  volumeCm3            Float
-  surfaceAreaCm2       Float
-  boundingBoxXMm       Float
-  boundingBoxYMm       Float
-  boundingBoxZMm       Float
-  triangleCount        Int
-  // Estimated hours at default settings (0.2mm layer, 30% infill, PLA)
-  estimatedPrintHours  Float
-  needsSupport         Boolean  @default(false)
-  cloudinaryPublicId   String?
-  cloudinaryUrl        String?
-  createdAt            DateTime @default(now())
+  id                  String   @id @default(cuid())
+  fileName            String
+  fileSizeBytes       Int
+  volumeCm3           Float
+  surfaceAreaCm2      Float
+  boundingBoxXMm      Float
+  boundingBoxYMm      Float
+  boundingBoxZMm      Float
+  triangleCount       Int
+  estimatedPrintHours Float
+  needsSupport        Boolean  @default(false)
+  cloudinaryPublicId  String?
+  cloudinaryUrl       String?
+  createdAt           DateTime @default(now())
 
   orders Order[]
 
@@ -131,28 +208,33 @@ model STLAnalysis {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  customerId      String
-  status          OrderStatus @default(UPLOADED)
-  stlAnalysisId   String?
-  material        Material    @default(PLA)
-  infillDensity   Float       @default(0.30) // 0.15 | 0.30 | 0.50 | 0.80
-  layerHeight     Float       @default(0.20) // 0.10 | 0.20 | 0.30
-  quantity        Int         @default(1)
-  estimatedPrice  Float?      // from algo
-  totalPrice      Float?      // from accepted quote
-  city            String
-  lat             Float
-  lng             Float
-  // Set after quote acceptance
-  acceptedQuoteId String?
-  // Completion photo uploaded by owner before marking READY
-  completionPhoto String?
-  // Computed on PRINTING state from STL analysis
+  id                    String      @id @default(cuid())
+  customerId            String
+  status                OrderStatus @default(UPLOADED)
+  stlAnalysisId         String?
+  material              Material    @default(PLA)
+  infillDensity         Float       @default(0.30)
+  layerHeight           Float       @default(0.20)
+  quantity              Int         @default(1)
+  estimatedPrice        Float?
+  totalPrice            Float?
+  city                  String
+  lat                   Float
+  lng                   Float
+  acceptedQuoteId       String?
+  completionPhoto       String?
   estimatedCompletionAt DateTime?
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  notes                 String?
+  // Payment
+  razorpayOrderId       String?
+  razorpayPaymentId     String?
+  stripePaymentId       String?
+  paymentStatus         String?     @default("pending")
+  platformFee           Float?
+  ownerPayout           Float?
+  payoutStatus          String?     @default("pending")
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   customer      User                 @relation("CustomerOrders", fields: [customerId], references: [id])
   stlAnalysis   STLAnalysis?         @relation(fields: [stlAnalysisId], references: [id])
@@ -185,7 +267,6 @@ model Quote {
   turnaroundDays Int
   message        String?
   isAccepted     Boolean  @default(false)
-  // Auto-expires if not accepted in 2 hours
   expiresAt      DateTime
   createdAt      DateTime @default(now())
 
@@ -200,11 +281,9 @@ model Rating {
   id             String   @id @default(cuid())
   orderId        String   @unique
   printerOwnerId String
-  // Individual dimension scores 1-5
   printQuality   Int
   accuracy       Int
   packaging      Int
-  // Weighted composite: quality 50%, accuracy 35%, packaging 15%
   compositeScore Float
   comment        String?
   createdAt      DateTime @default(now())
@@ -215,7 +294,6 @@ model Rating {
   @@index([printerOwnerId])
 }
 
-// Tracks daily order volume per city for surge pricing detection
 model DemandMetric {
   id         String   @id @default(cuid())
   city       String

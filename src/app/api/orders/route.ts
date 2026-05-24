@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadSTLToCloudinary } from "@/lib/cloudinary";
 import type { Material } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const metricsJson = formData.get("metrics") as string;
@@ -19,19 +26,7 @@ export async function POST(req: NextRequest) {
     const settings = JSON.parse(settingsJson);
     const price = JSON.parse(priceJson);
 
-    // Demo: use or create a demo customer
-    const customer = await prisma.user.upsert({
-      where: { email: "demo@printkaro.in" },
-      update: {},
-      create: {
-        email: "demo@printkaro.in",
-        name: "Demo Customer",
-        city,
-        lat,
-        lng,
-        role: "CUSTOMER",
-      },
-    });
+    const customerId = session.user.id;
 
     // Upload STL to Cloudinary if file provided
     let analysisId: string | undefined;
@@ -61,7 +56,7 @@ export async function POST(req: NextRequest) {
     // Create the order
     const order = await prisma.order.create({
       data: {
-        customerId: customer.id,
+        customerId,
         stlAnalysisId: analysisId,
         material: settings.material as Material,
         infillDensity: settings.infillDensity,
@@ -118,13 +113,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const customerId = searchParams.get("customerId");
+export async function GET(_req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const orders = await prisma.order.findMany({
-      where: customerId ? { customerId } : undefined,
+      where: { customerId: session.user.id },
       include: {
         stlAnalysis: { select: { fileName: true, volumeCm3: true } },
         quotes: {
