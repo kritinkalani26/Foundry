@@ -30,6 +30,12 @@ export default function AnalyzePage() {
   const [orderingAll, setOrderingAll] = useState(false);
   const [orderingSelected, setOrderingSelected] = useState(false);
   const [ordersPlaced, setOrdersPlaced] = useState<{ count: number; mode: string } | null>(null);
+  const [savedParts, setSavedParts] = useState<Set<string>>(new Set());
+  const [savingPart, setSavingPart] = useState<string | null>(null);
+  const [savingAll, setSavingAll] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
   if (status === "loading") return null;
   if (!session) { router.push("/auth/signin"); return null; }
@@ -138,6 +144,60 @@ export default function AnalyzePage() {
     finally { setOrderingSelected(false); }
   };
 
+  const savePart = async (part: PartAnalysis) => {
+    setSavingPart(part.partName);
+    try {
+      const res = await fetch("/api/parts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: part.partName,
+          process: part.process,
+          material: part.material,
+          estimatedCostInr: part.estimatedCostInr,
+          assemblyName: result?.assemblyName,
+          notes: part.reason,
+        }),
+      });
+      if (res.ok) {
+        setSavedParts(prev => new Set(prev).add(part.partName));
+        showToast(`"${part.partName}" saved to library`);
+      } else {
+        showToast("Failed to save part");
+      }
+    } catch {
+      showToast("Failed to save part");
+    } finally {
+      setSavingPart(null);
+    }
+  };
+
+  const saveAllParts = async () => {
+    if (!result) return;
+    setSavingAll(true);
+    const unsaved = result.parts.filter(p => !savedParts.has(p.partName));
+    let count = 0;
+    for (const part of unsaved) {
+      try {
+        const res = await fetch("/api/parts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: part.partName,
+            process: part.process,
+            material: part.material,
+            estimatedCostInr: part.estimatedCostInr,
+            assemblyName: result.assemblyName,
+            notes: part.reason,
+          }),
+        });
+        if (res.ok) { setSavedParts(prev => new Set(prev).add(part.partName)); count++; }
+      } catch { /* skip */ }
+    }
+    setSavingAll(false);
+    showToast(`${count} part${count !== 1 ? "s" : ""} saved to library`);
+  };
+
   const goToPartOrder = (part: PartAnalysis) => {
     const params = new URLSearchParams({
       partName: part.partName,
@@ -150,6 +210,7 @@ export default function AnalyzePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {toast && <div className="fixed top-4 right-4 z-50 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg">{toast}</div>}
       <div className="max-w-5xl mx-auto px-4 py-10">
 
         <div className="mb-8">
@@ -269,6 +330,9 @@ export default function AnalyzePage() {
                       isChecked={checked.has(part.partName)}
                       onToggle={() => toggleCheck(part.partName)}
                       onViewOrder={() => goToPartOrder(part)}
+                      isSaved={savedParts.has(part.partName)}
+                      isSaving={savingPart === part.partName}
+                      onSave={() => savePart(part)}
                     />
                   );
                 })}
@@ -302,6 +366,13 @@ export default function AnalyzePage() {
                     Placing…
                   </span>
                 ) : `Order All ${orderableParts.length} Parts (cheapest)`}
+              </button>
+              <button
+                onClick={saveAllParts}
+                disabled={savingAll || savedParts.size === result.parts.length}
+                className="rounded-xl border border-gray-200 text-gray-700 font-semibold py-2.5 px-5 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                {savingAll ? "Saving…" : savedParts.size === result.parts.length ? "All saved ✓" : "Save All to Library"}
               </button>
               <p className="text-xs text-gray-400 ml-auto">
                 &quot;Order All&quot; automatically picks the lowest-quoted store per part
@@ -355,13 +426,16 @@ export default function AnalyzePage() {
   );
 }
 
-function PartRow({ part, isOrderable, storeCount, isChecked, onToggle, onViewOrder }: {
+function PartRow({ part, isOrderable, storeCount, isChecked, onToggle, onViewOrder, isSaved, isSaving, onSave }: {
   part: PartAnalysis;
   isOrderable: boolean;
   storeCount: number;
   isChecked: boolean;
   onToggle: () => void;
   onViewOrder: () => void;
+  isSaved: boolean;
+  isSaving: boolean;
+  onSave: () => void;
 }) {
   const style = PROCESS_STYLE[part.process] || { color: "bg-gray-100 text-gray-700", icon: "🔧" };
   return (
@@ -385,14 +459,27 @@ function PartRow({ part, isOrderable, storeCount, isChecked, onToggle, onViewOrd
       </div>
       <div className="shrink-0 text-right flex flex-col items-end gap-1">
         <p className="font-semibold text-gray-900 text-sm">₹{part.estimatedCostInr.toLocaleString("en-IN")}</p>
-        {isOrderable && (
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={onViewOrder}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded-lg px-2.5 py-1 hover:bg-blue-50 transition-colors whitespace-nowrap"
+            onClick={onSave}
+            disabled={isSaved || isSaving}
+            className={`text-xs font-medium border rounded-lg px-2.5 py-1 transition-colors whitespace-nowrap ${
+              isSaved
+                ? "border-green-200 text-green-600 bg-green-50 cursor-default"
+                : "border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            }`}
           >
-            View & Order →
+            {isSaving ? "…" : isSaved ? "Saved ✓" : "Save"}
           </button>
-        )}
+          {isOrderable && (
+            <button
+              onClick={onViewOrder}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 rounded-lg px-2.5 py-1 hover:bg-blue-50 transition-colors whitespace-nowrap"
+            >
+              View & Order →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

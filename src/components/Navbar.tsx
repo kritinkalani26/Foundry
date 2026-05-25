@@ -17,6 +17,8 @@ export default function Navbar() {
     { href: "/",                   label: "Services" },
     { href: "/printers",           label: "Find Spaces" },
     { href: "/analyze",            label: "Analyze Assembly" },
+    { href: "/library",            label: "Part Library" },
+    { href: "/team",               label: "Team" },
     { href: "/owner",              label: "List Equipment" },
     { href: "/dashboard/customer", label: "My Orders" },
   ];

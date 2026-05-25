@@ -65,12 +65,14 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  orders        Order[]       @relation("CustomerOrders")
-  printerOwner  PrinterOwner?
-  addresses     Address[]
-  benefits      UserBenefit[]
-  subscription  Subscription?
-  paymentEvents PaymentEvent[]
+  orders          Order[]       @relation("CustomerOrders")
+  printerOwner    PrinterOwner?
+  addresses       Address[]
+  benefits        UserBenefit[]
+  subscription    Subscription?
+  paymentEvents   PaymentEvent[]
+  savedParts      SavedPart[]
+  teamMemberships TeamMember[]
 
   @@index([email])
   @@index([city])
@@ -302,4 +304,73 @@ model DemandMetric {
 
   @@unique([city, date])
   @@index([city, date])
+}
+
+// ─────────────────────────────────────────────
+// PART LIBRARY
+// ─────────────────────────────────────────────
+
+model SavedPart {
+  id               String    @id @default(cuid())
+  userId           String
+  teamId           String?
+  name             String
+  process          String
+  material         String
+  estimatedCostInr Float
+  notes            String?
+  assemblyName     String?
+  orderCount       Int       @default(0)
+  lastOrderedAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team? @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([teamId])
+}
+
+// ─────────────────────────────────────────────
+// TEAMSPACE
+// ─────────────────────────────────────────────
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members    TeamMember[]
+  savedParts SavedPart[]
+  invites    TeamInvite[]
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  teamId   String
+  userId   String
+  role     String   @default("MEMBER") // "ADMIN" | "MEMBER"
+  joinedAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model TeamInvite {
+  id        String   @id @default(cuid())
+  teamId    String
+  token     String   @unique @default(cuid())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([token])
 }
