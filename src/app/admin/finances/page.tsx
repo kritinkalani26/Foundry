@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, CreditCard, Users, Banknote, DollarSign } from "lucide-react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = prisma as any;
 
 async function getFinancials() {

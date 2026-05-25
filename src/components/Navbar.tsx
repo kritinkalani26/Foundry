@@ -16,6 +16,7 @@ export default function Navbar() {
   const links = [
     { href: "/",                   label: "Services" },
     { href: "/printers",           label: "Find Spaces" },
+    { href: "/analyze",            label: "Analyze Assembly" },
     { href: "/owner",              label: "List Equipment" },
     { href: "/dashboard/customer", label: "My Orders" },
   ];

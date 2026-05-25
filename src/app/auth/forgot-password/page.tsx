@@ -48,14 +48,14 @@ export default function ForgotPasswordPage() {
               </div>
               <h3 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 10 }}>Check your email</h3>
               <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.6, marginBottom: 4 }}>
-                If an account with <strong>{email}</strong> exists, we've sent a reset link to it.
+                If an account with <strong>{email}</strong> exists, we&apos;ve sent a reset link to it.
               </p>
               <p style={{ fontSize: 13, color: "#9CA3AF" }}>The link expires in 1 hour.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.6 }}>
-                Enter your account email and we'll send you a reset link.
+                Enter your account email and we&apos;ll send you a reset link.
               </p>
               <div>
                 <label style={labelStyle}>Email</label>
