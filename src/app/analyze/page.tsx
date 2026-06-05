@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { AssemblyAnalysis, PartAnalysis, StoreInfo } from "@/app/api/analyze-assembly/route";
 import { storeEstimate } from "@/lib/analyze-utils";
+
+// StepViewer uses WebAssembly + Three.js — load client-side only
+const StepViewer = dynamic(() => import("@/components/StepViewer"), { ssr: false, loading: () => null });
 
 const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "3D Print":        { color: "bg-blue-100 text-blue-800",    icon: "🖨️" },
@@ -34,6 +38,7 @@ export default function AnalyzePage() {
   const [savingPart, setSavingPart] = useState<string | null>(null);
   const [savingAll, setSavingAll] = useState(false);
   const [toast, setToast] = useState("");
+  const [show3D, setShow3D] = useState(false);
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
@@ -287,10 +292,23 @@ export default function AnalyzePage() {
                   <h2 className="text-xl font-bold text-gray-900">{result.assemblyName}</h2>
                   <p className="mt-1 text-sm text-gray-600 max-w-2xl">{result.summary}</p>
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-xs text-gray-400 uppercase tracking-wide">AI estimate</p>
-                  <p className="text-2xl font-bold text-gray-900">₹{result.totalEstimatedCostInr.toLocaleString("en-IN")}</p>
-                  <p className="text-xs text-gray-400">{result.parts.length} components</p>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400 uppercase tracking-wide">AI estimate</p>
+                    <p className="text-2xl font-bold text-gray-900">₹{result.totalEstimatedCostInr.toLocaleString("en-IN")}</p>
+                    <p className="text-xs text-gray-400">{result.parts.length} components</p>
+                  </div>
+                  <button
+                    onClick={() => setShow3D(v => !v)}
+                    className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                      show3D
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <span>🧊</span>
+                    {show3D ? "Hide 3D View" : "View in 3D"}
+                  </button>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
@@ -300,6 +318,16 @@ export default function AnalyzePage() {
                 })}
               </div>
             </div>
+
+            {/* 3D Viewer */}
+            {show3D && stepFile && (
+              <StepViewer
+                file={stepFile}
+                parts={result.parts}
+                checked={checked}
+                onToggle={toggleCheck}
+              />
+            )}
 
             {/* Parts list */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">

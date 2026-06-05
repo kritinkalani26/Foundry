@@ -8,6 +8,8 @@ const nextConfig = {
   },
   webpack: (config) => {
     config.externals = config.externals || [];
+    // Enable async WebAssembly for occt-import-js (STEP file parser)
+    config.experiments = { ...config.experiments, asyncWebAssembly: true };
     return config;
   },
 };
