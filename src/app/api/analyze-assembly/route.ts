@@ -44,6 +44,25 @@ Rules: shaft/axle/rod→Lathe; flat panel/sheet→Laser Cut; metal structural pl
 JSON only: {"parts":[{"partName":"...","process":"...","material":"...","reason":"...","estimatedCostInr":0,"suggestedStoreIds":[]}]}`;
 }
 
+function flatString(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") return Object.values(v as Record<string, unknown>).map(x => String(x ?? "")).join(" ");
+  return String(v ?? "");
+}
+
+function normalizePart(raw: unknown): PartAnalysis | null {
+  if (!raw || typeof raw !== "object") return null;
+  const p = raw as Record<string, unknown>;
+  return {
+    partName: flatString(p.partName),
+    process: flatString(p.process),
+    material: flatString(p.material),
+    reason: flatString(p.reason),
+    estimatedCostInr: typeof p.estimatedCostInr === "number" ? p.estimatedCostInr : Number(p.estimatedCostInr) || 0,
+    suggestedStoreIds: Array.isArray(p.suggestedStoreIds) ? p.suggestedStoreIds.map(String) : [],
+  };
+}
+
 async function analyseChunk(
   assemblyName: string,
   description: string,
@@ -61,8 +80,8 @@ async function analyseChunk(
   });
 
   const raw = completion.choices[0]?.message?.content || "{}";
-  const parsed = JSON.parse(raw) as { parts?: PartAnalysis[] };
-  return parsed.parts || [];
+  const parsed = JSON.parse(raw) as { parts?: unknown[] };
+  return (parsed.parts || []).map(normalizePart).filter(Boolean) as PartAnalysis[];
 }
 
 export async function POST(req: NextRequest) {
@@ -182,8 +201,8 @@ async function handlePost(req: NextRequest) {
       max_tokens: 200,
       response_format: { type: "json_object" },
     });
-    const s = JSON.parse(summaryCompletion.choices[0]?.message?.content || "{}") as { summary?: string };
-    summary = s.summary || "";
+    const s = JSON.parse(summaryCompletion.choices[0]?.message?.content || "{}") as Record<string, unknown>;
+    summary = flatString(s.summary || s.manufacturing_strategy || Object.values(s)[0] || "");
   } catch { /* non-critical */ }
 
   // Ensure every orderable part has all stores available (not just AI-guessed IDs)

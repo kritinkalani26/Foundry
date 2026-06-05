@@ -296,6 +296,22 @@ model Rating {
   @@index([printerOwnerId])
 }
 
+// Stores real price datapoints for ML model retraining.
+// Tier 1: source="foundry_quote" (real accepted transactions)
+// Tier 2: source="jlcpcb_formula" / "3ding_rate_table" / etc. (scraped)
+model PriceDataPoint {
+  id        String   @id @default(cuid())
+  equipment String   // "3d-printer" | "cnc-mill" | "laser-cutter" | etc.
+  features  Json     // {"volume_cm3": 42.5, "infill": 0.3, ...}
+  priceInr  Float
+  source    String   // "foundry_quote" | "jlcpcb_formula" | "indiamart_rate_table" | …
+  orderId   String?  // set when source="foundry_quote"
+  createdAt DateTime @default(now())
+
+  @@index([equipment, source])
+  @@index([createdAt])
+}
+
 model DemandMetric {
   id         String   @id @default(cuid())
   city       String
