@@ -26,14 +26,10 @@ function SupplierHeader() {
         <a href="/supplier" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{
             width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #EA580C, #C2410C)",
+            background: "#0F172A", overflow: "hidden",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-              <line x1="12" y1="3" x2="12" y2="21"/>
-              <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
-              <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
-            </svg>
+            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "sepia(1) saturate(4) hue-rotate(345deg) brightness(0.75)" }} />
           </div>
           <span style={{ fontWeight: 800, fontSize: 18, color: "#111827" }}>Foundry</span>
           <span style={{
@@ -133,12 +129,8 @@ function SupplierFooter() {
         <div className="resp-grid-footer">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg, #EA580C, #C2410C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-                  <line x1="12" y1="3" x2="12" y2="21"/>
-                  <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
-                  <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
-                </svg>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: "#0F172A", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "sepia(1) saturate(4) hue-rotate(345deg) brightness(0.75)" }} />
               </div>
               <span style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>Foundry</span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "#F0FDF433", color: "#86EFAC", border: "1px solid #16A34A44" }}>Suppliers</span>

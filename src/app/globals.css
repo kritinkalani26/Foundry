@@ -175,9 +175,9 @@ img { max-width: 100%; display: block; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #1E3A5F;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 1px 6px rgba(0,0,0,.2);
+  background: #fff;
+  border-bottom: 1px solid #F3F4F6;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
 .navbar-inner {
   max-width: 1100px;
@@ -194,32 +194,33 @@ img { max-width: 100%; display: block; }
   gap: 10px;
   font-size: 20px;
   font-weight: 800;
-  color: #fff;
+  color: #111827;
   text-decoration: none;
 }
 .logo-icon {
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, #EA580C, #C2410C);
+  background: #0F172A;
   border-radius: 8px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.logo-link { color: #FB923C; }
+.logo-link { color: #EA580C; }
 .nav-links { display: flex; align-items: center; gap: 4px; }
 .nav-link {
   padding: 8px 10px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #94A3B8;
+  color: #6B7280;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 .nav-link:hover, .nav-link.active {
-  background: rgba(249,115,22,0.12);
-  color: #FB923C;
+  background: #FFF7ED;
+  color: #EA580C;
 }
 @media (max-width: 768px) { .nav-links { display: none; } }
 .mobile-toggle { display: none; }

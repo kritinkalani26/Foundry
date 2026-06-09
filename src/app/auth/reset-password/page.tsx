@@ -99,12 +99,8 @@ export default function ResetPasswordPage() {
       <div style={{ width: "100%", maxWidth: 420 }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #EA580C, #C2410C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-                <line x1="12" y1="3" x2="12" y2="21"/>
-                <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
-                <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
-              </svg>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "#0F172A", overflow: "hidden" }}>
+              <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "sepia(1) saturate(4) hue-rotate(345deg) brightness(0.75)" }} />
             </div>
             <span style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>Foundry</span>
           </div>
