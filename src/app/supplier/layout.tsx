@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Package, BarChart2, Shield } from "lucide-react";
 
@@ -11,6 +12,7 @@ const NAV_LINKS = [
 
 function SupplierHeader() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header style={{
@@ -38,7 +40,8 @@ function SupplierHeader() {
           }}>for Suppliers</span>
         </a>
 
-        <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        {/* Desktop nav */}
+        <nav className="supplier-nav-desktop" style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {NAV_LINKS.map(({ href, label, icon }) => {
             const active = pathname === href;
             return (
@@ -66,7 +69,57 @@ function SupplierHeader() {
             Sign In
           </a>
         </nav>
+
+        {/* Mobile hamburger */}
+        <button
+          className="supplier-mobile-toggle"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Menu"
+          style={{
+            padding: 8, borderRadius: 8,
+            background: mobileOpen ? "#FFF7ED" : "none",
+            border: mobileOpen ? "1px solid #FED7AA" : "1px solid transparent",
+          }}
+        >
+          {mobileOpen
+            ? <svg width="20" height="20" fill="none" stroke="#F97316" strokeWidth="2.5"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            : <svg width="20" height="20" fill="none" stroke="#374151" strokeWidth="2"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="17" y2="18"/></svg>
+          }
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div style={{
+          background: "#fff", borderTop: "1px solid #F3F4F6",
+          padding: "12px 20px 20px", display: "flex", flexDirection: "column", gap: 4,
+        }}>
+          {NAV_LINKS.map(({ href, label, icon }) => {
+            const active = pathname === href;
+            return (
+              <a key={href} href={href} onClick={() => setMobileOpen(false)} style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "12px 14px", borderRadius: 10,
+                fontSize: 15, fontWeight: active ? 700 : 500,
+                color: active ? "#EA580C" : "#374151",
+                background: active ? "#FFF7ED" : "transparent",
+                textDecoration: "none",
+              }}>
+                <span style={{ color: active ? "#F97316" : "#9CA3AF" }}>{icon}</span>
+                {label}
+              </a>
+            );
+          })}
+          <div style={{ borderTop: "1px solid #F3F4F6", marginTop: 8, paddingTop: 12, display: "flex", gap: 10 }}>
+            <a href="/" style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, color: "#6B7280", textDecoration: "none", border: "1px solid #E5E7EB" }}>
+              ← Foundry
+            </a>
+            <a href="/auth/login" style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, fontWeight: 700, background: "#111827", color: "#fff", textDecoration: "none" }}>
+              Sign In
+            </a>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -75,7 +128,7 @@ function SupplierFooter() {
   return (
     <footer style={{ background: "#0F172A", borderTop: "1px solid #1E293B", padding: "48px 0 32px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 40 }}>
+        <div className="resp-grid-footer">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#F97316,#EF4444)", display: "flex", alignItems: "center", justifyContent: "center" }}>

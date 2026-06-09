@@ -348,7 +348,7 @@ export default function HomePage() {
       {/* ── STATS BAR ── */}
       <section style={{ background: "#1E293B", padding: "28px 0" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, textAlign: "center" }}>
+          <div className="resp-grid-4" style={{ textAlign: "center" }}>
             {[
               { n: "8",    label: "Equipment Types" },
               { n: "72+",  label: "Maker Spaces" },
@@ -668,7 +668,7 @@ export default function HomePage() {
           }}>
             <TrendingUp size={14} /> For Space Owners
           </div>
-          <h2 style={{ fontSize: 40, fontWeight: 800, color: "#fff", marginBottom: 12 }}>
+          <h2 style={{ fontSize: "clamp(26px, 5vw, 40px)", fontWeight: 800, color: "#fff", marginBottom: 12 }}>
             Have equipment? List it on Foundry.
           </h2>
           <p style={{ fontSize: 17, color: "rgba(255,255,255,0.85)", marginBottom: 36, maxWidth: 480, margin: "0 auto 36px" }}>

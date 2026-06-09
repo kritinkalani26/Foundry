@@ -76,17 +76,17 @@ export default function ListEquipmentPage() {
         <p style={{ fontSize: 16, color: "#6B7280" }}>Join the Foundry supplier network and start earning from idle machine time.</p>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 24, padding: 40 }}>
+      <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 24, padding: "clamp(20px, 5vw, 40px)" }}>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Personal details */}
           <div>
             <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", marginBottom: 16 }}>Your Details</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+            <div className="req-form-2col" style={{ marginBottom: 16 }}>
               <div><label style={lStyle}>Full Name</label><input style={iStyle} placeholder="Rahul Sharma" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
               <div><label style={lStyle}>Phone</label><input style={iStyle} placeholder="9876543210" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div className="req-form-2col">
               <div><label style={lStyle}>Email</label><input style={iStyle} type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               <div>
                 <label style={lStyle}>City</label>
@@ -157,7 +157,7 @@ export default function ListEquipmentPage() {
                   })}
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div className="req-form-2col">
                 <div>
                   <label style={lStyle}>Base Rate (₹ {equipment.rateUnit})</label>
                   <input style={iStyle} type="number" min="1" placeholder={equipment.rateHint} value={form.baseRate} onChange={(e) => setForm({ ...form, baseRate: e.target.value })} />

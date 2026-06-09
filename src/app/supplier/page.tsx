@@ -96,7 +96,7 @@ export default function SupplierLanding() {
             <h2 style={{ fontSize: 32, fontWeight: 800, color: "#111827", marginBottom: 10 }}>Everything you need as a supplier</h2>
             <p style={{ fontSize: 16, color: "#6B7280" }}>Three sections — list, earn, and get certified.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          <div className="resp-grid-3">
             {SECTION_CARDS.map(({ href, icon, title, desc, cta, accent, accentBg }) => (
               <div key={href} style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 20, padding: 32, display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ width: 60, height: 60, borderRadius: 16, background: accentBg, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -118,7 +118,7 @@ export default function SupplierLanding() {
       {/* ── STATS BAR ── */}
       <section style={{ background: "#fff", borderTop: "1px solid #F3F4F6", borderBottom: "1px solid #F3F4F6" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+          <div className="resp-grid-4">
             {PLATFORM_STATS.map(({ value, label, sub }, i) => (
               <div key={label} style={{ textAlign: "center", padding: "28px 20px", borderRight: i < 3 ? "1px solid #F3F4F6" : "none" }}>
                 <p style={{ fontSize: 32, fontWeight: 900, color: "#F97316", lineHeight: 1, marginBottom: 6 }}>{value}</p>
@@ -140,7 +140,7 @@ export default function SupplierLanding() {
             <h2 style={{ fontSize: 32, fontWeight: 800, color: "#111827", marginBottom: 12 }}>Suppliers of every size earn on Foundry</h2>
             <p style={{ fontSize: 16, color: "#6B7280" }}>Real stories from the network.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          <div className="resp-grid-3">
             {TESTIMONIALS.map((t) => (
               <div key={t.name} style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 20, padding: 28, display: "flex", flexDirection: "column", gap: 18 }}>
                 <div style={{ display: "flex", gap: 3 }}>
@@ -172,7 +172,7 @@ export default function SupplierLanding() {
             <h2 style={{ fontSize: 32, fontWeight: 800, color: "#111827", marginBottom: 12 }}>Start earning in 3 steps</h2>
             <p style={{ fontSize: 16, color: "#6B7280", maxWidth: 480, margin: "0 auto" }}>No subscription. No upfront fee. First job request within 24 hours of approval.</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
+          <div className="resp-grid-3" style={{ gap: 28 }}>
             {[
               { step: 1, icon: <Package  size={28} color="#F97316" />, title: "Apply online",        desc: "Select your equipment type, enter specs, materials, and rate. Upload any certifications you hold. Takes under 10 minutes.", detail: "10 min to apply",     href: "/supplier/list" },
               { step: 2, icon: <Shield   size={28} color="#F97316" />, title: "Get verified",       desc: "Our team reviews your listing and certifications. Approval and onboarding within 24 hours of submission.", detail: "24-hour approval",  href: null },

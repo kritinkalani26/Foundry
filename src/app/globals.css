@@ -775,3 +775,54 @@ footer {
   box-shadow: 0 8px 28px rgba(0,0,0,.1);
   transform: translateY(-2px);
 }
+
+/* ─── MISSING BADGE VARIANTS ────────────────────── */
+.badge-teal   { background: #F0FDFA; color: #0F766E; }
+.badge-indigo { background: #EEF2FF; color: #4338CA; }
+
+/* ─── RESPONSIVE GRID HELPERS ───────────────────── */
+.resp-grid-4      { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.resp-grid-3      { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.resp-grid-2      { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.resp-grid-footer { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+.req-layout       { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.req-form-2col    { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ML price panel: desktop=hidden inline, mobile=shown */
+.ml-panel-mobile { display: none; }
+
+/* Supplier header mobile toggle hidden on desktop */
+.supplier-mobile-toggle {
+  display: none;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .resp-grid-4      { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .resp-grid-3      { grid-template-columns: 1fr;     gap: 20px; }
+  .resp-grid-2      { grid-template-columns: 1fr;     gap: 16px; }
+  .resp-grid-footer { grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .req-layout         { grid-template-columns: 1fr; }
+  .req-layout-sidebar { display: none; }
+  .req-form-2col      { grid-template-columns: 1fr; gap: 12px; }
+  .ml-panel-mobile    { display: block; margin-bottom: 8px; }
+
+  .supplier-nav-desktop   { display: none !important; }
+  .supplier-mobile-toggle { display: flex; }
+
+  .section       { padding: 48px 0; }
+  .section-title { font-size: 26px; }
+  .container     { padding: 0 16px; }
+}
+
+@media (max-width: 480px) {
+  .resp-grid-4      { gap: 12px; }
+  .resp-grid-footer { grid-template-columns: 1fr; gap: 20px; }
+}

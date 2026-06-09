@@ -54,7 +54,7 @@ export default function EarningsPage() {
       </div>
 
       {/* Top grid: chart + calculator */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
+      <div className="resp-grid-2" style={{ marginBottom: 24 }}>
 
         {/* Revenue chart */}
         <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 24, padding: 32 }}>

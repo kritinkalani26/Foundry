@@ -696,7 +696,7 @@ function RequestPageContent() {
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 24, alignItems: "start" }}>
+        <div className="req-layout">
           {/* Form */}
           <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 24, padding: "36px" }}>
             {submitted ? (
@@ -721,7 +721,7 @@ function RequestPageContent() {
                 {/* Contact */}
                 <div>
                   <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", marginBottom: 16 }}>Your Contact Details</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="req-form-2col" style={{ marginBottom: 16 }}>
                     <div>
                       <label style={labelStyle}>Full Name</label>
                       <input style={inputStyle} placeholder="Arjun Singh" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -731,7 +731,7 @@ function RequestPageContent() {
                       <input style={inputStyle} placeholder="9876543210" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
                     </div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <div className="req-form-2col">
                     <div>
                       <label style={labelStyle}>Email</label>
                       <input style={inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -768,7 +768,7 @@ function RequestPageContent() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div className="req-form-2col" style={{ marginBottom: 16 }}>
                     {meta.fields.includes("dimensions") && (
                       <div>
                         <label style={labelStyle}>Dimensions (mm)</label>
@@ -858,6 +858,11 @@ function RequestPageContent() {
                   )}
                 </div>
 
+                {/* ML price panel — shown on mobile only (desktop uses sidebar) */}
+                <div className="ml-panel-mobile">
+                  <MLPricePanel serviceKey={serviceKey} meta={meta} form={form} extraSliders={extraSliders} />
+                </div>
+
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg" style={{ width: "100%", justifyContent: "center", fontSize: 15 }}>
                   {loading ? <><Loader2 size={16} className="spin" /> Sending to spaces...</> : `Request ${meta.name} Quote`}
                 </button>
@@ -868,9 +873,11 @@ function RequestPageContent() {
             )}
           </div>
 
-          {/* Sidebar — ML price estimate (desktop) */}
+          {/* Sidebar — ML price estimate (desktop only) */}
           {!submitted && (
-            <MLPricePanel serviceKey={serviceKey} meta={meta} form={form} extraSliders={extraSliders} />
+            <div className="req-layout-sidebar">
+              <MLPricePanel serviceKey={serviceKey} meta={meta} form={form} extraSliders={extraSliders} />
+            </div>
           )}
         </div>
       </div>
