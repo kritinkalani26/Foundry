@@ -63,7 +63,7 @@ export default function SignupPage() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
             <div style={{ width: 36, height: 36 }}>
-              <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(6) hue-rotate(345deg) brightness(1.5)" }} />
+              <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
             </div>
             <span style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>Foundry</span>
           </div>

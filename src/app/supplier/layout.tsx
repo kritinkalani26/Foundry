@@ -24,8 +24,8 @@ function SupplierHeader() {
         height: 64, display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <a href="/supplier" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <div style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(6) hue-rotate(345deg) brightness(1.5)" }} />
+          <div style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
           </div>
           <span style={{ fontWeight: 800, fontSize: 18, color: "#111827" }}>Foundry</span>
           <span style={{
@@ -125,8 +125,8 @@ function SupplierFooter() {
         <div className="resp-grid-footer">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(6) hue-rotate(345deg) brightness(1.5)" }} />
+              <div style={{ width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
               </div>
               <span style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>Foundry</span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "#F0FDF433", color: "#86EFAC", border: "1px solid #16A34A44" }}>Suppliers</span>
