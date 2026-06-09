@@ -5,7 +5,7 @@ import { parseSTEP } from "@/lib/step-parser";
 import Groq from "groq-sdk";
 import { prisma } from "@/lib/prisma";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+function getGroq() { return new Groq({ apiKey: process.env.GROQ_API_KEY }); }
 
 // Free tier: 12,000 TPM. Keep each call well under that.
 const CHUNK_SIZE = 12;          // ~12 parts × ~80 tokens/part = ~960 output tokens
@@ -71,7 +71,7 @@ async function analyseChunk(
 ): Promise<PartAnalysis[]> {
   const prompt = buildPrompt(assemblyName, description, parts, storeContext);
 
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroq().chat.completions.create({
     model: "llama-3.3-70b-versatile",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.2,
@@ -196,7 +196,7 @@ async function handlePost(req: NextRequest) {
   }
   // Quick summary via a lightweight call
   try {
-    const summaryCompletion = await groq.chat.completions.create({
+    const summaryCompletion = await getGroq().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [{
         role: "user",
