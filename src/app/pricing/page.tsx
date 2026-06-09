@@ -143,7 +143,7 @@ export default function PricingPage() {
 
           <button
             onClick={handleSubscribe} disabled={loading}
-            style={{ width: "100%", padding: "16px", borderRadius: 14, background: loading ? "#9CA3AF" : "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 16 }}
+            style={{ width: "100%", padding: "16px", borderRadius: 14, background: loading ? "#9CA3AF" : "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 16 }}
           >
             {loading && <Loader2 size={16} className="spin" />}
             {session ? `Subscribe ${billing === "annual" ? "annually" : "monthly"}` : "Sign up to subscribe"}

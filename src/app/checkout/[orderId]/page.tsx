@@ -175,7 +175,7 @@ export default function CheckoutPage() {
 
             <button
               onClick={handlePay} disabled={paying}
-              style={{ width: "100%", padding: "16px", borderRadius: 14, background: paying ? "#9CA3AF" : "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
+              style={{ width: "100%", padding: "16px", borderRadius: 14, background: paying ? "#9CA3AF" : "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: paying ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
             >
               {paying ? <Loader2 size={18} className="spin" /> : null}
               {paying ? "Opening payment…" : `Pay ₹${amount.toLocaleString("en-IN")} via UPI / Card`}

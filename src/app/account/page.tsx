@@ -151,7 +151,7 @@ function ProfileTab({ profile, onUpdate }: { profile: Profile; onUpdate: () => v
         {error && <p style={{ fontSize: 13, color: "#DC2626" }}>{error}</p>}
         {saved && <p style={{ fontSize: 13, color: "#16A34A", display: "flex", alignItems: "center", gap: 6 }}><CheckCircle size={14} /> Saved</p>}
 
-        <button type="submit" disabled={saving} style={{ padding: "12px 0", borderRadius: 12, background: saving ? "#9CA3AF" : "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", fontWeight: 700, border: "none", cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <button type="submit" disabled={saving} style={{ padding: "12px 0", borderRadius: 12, background: saving ? "#9CA3AF" : "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", fontWeight: 700, border: "none", cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
           {saving && <Loader2 size={14} className="spin" />} Save Changes
         </button>
       </form>
@@ -167,7 +167,7 @@ function ProfileTab({ profile, onUpdate }: { profile: Profile; onUpdate: () => v
               {emailMsg && <p style={{ fontSize: 13, color: emailMsg.includes("updated") ? "#16A34A" : "#DC2626" }}>{emailMsg}</p>}
               <div style={{ display: "flex", gap: 10 }}>
                 <button type="button" onClick={() => setEmailModal(false)} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "1.5px solid #E5E7EB", background: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Cancel</button>
-                <button type="submit" disabled={emailSaving} style={{ flex: 1, padding: "11px", borderRadius: 10, background: "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", border: "none", cursor: emailSaving ? "not-allowed" : "pointer", fontWeight: 700, fontFamily: "inherit" }}>
+                <button type="submit" disabled={emailSaving} style={{ flex: 1, padding: "11px", borderRadius: 10, background: "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", border: "none", cursor: emailSaving ? "not-allowed" : "pointer", fontWeight: 700, fontFamily: "inherit" }}>
                   {emailSaving ? "Saving…" : "Update"}
                 </button>
               </div>
@@ -235,7 +235,7 @@ function AddressesTab({ addresses, onUpdate }: { addresses: Address[]; onUpdate:
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>Saved Addresses</h2>
-        <button onClick={() => setShowForm(s => !s)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 10, background: "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+        <button onClick={() => setShowForm(s => !s)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 10, background: "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
           <Plus size={14} /> Add Address
         </button>
       </div>
@@ -300,7 +300,7 @@ function AddressesTab({ addresses, onUpdate }: { addresses: Address[]; onUpdate:
             {error && <p style={{ fontSize: 13, color: "#DC2626" }}>{error}</p>}
             <div style={{ display: "flex", gap: 10 }}>
               <button type="button" onClick={() => setShowForm(false)} style={{ flex: 1, padding: "11px", borderRadius: 10, border: "1.5px solid #E5E7EB", background: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Cancel</button>
-              <button type="submit" disabled={saving} style={{ flex: 2, padding: "11px", borderRadius: 10, background: saving ? "#9CA3AF" : "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", border: "none", cursor: saving ? "not-allowed" : "pointer", fontWeight: 700, fontFamily: "inherit" }}>
+              <button type="submit" disabled={saving} style={{ flex: 2, padding: "11px", borderRadius: 10, background: saving ? "#9CA3AF" : "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", border: "none", cursor: saving ? "not-allowed" : "pointer", fontWeight: 700, fontFamily: "inherit" }}>
                 {saving ? "Saving…" : "Save Address"}
               </button>
             </div>
@@ -437,7 +437,7 @@ function EarningsTab({ userId }: { userId: string }) {
 
       {/* Summary cards */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
-        <div style={{ background: "linear-gradient(135deg,#F97316,#EA580C)", borderRadius: 16, padding: "20px 24px", color: "#fff" }}>
+        <div style={{ background: "linear-gradient(135deg, #EA580C, #C2410C)", borderRadius: 16, padding: "20px 24px", color: "#fff" }}>
           <p style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, marginBottom: 6 }}>TOTAL EARNED</p>
           <p style={{ fontSize: 28, fontWeight: 800 }}>₹{(data?.totalEarned ?? 0).toLocaleString("en-IN")}</p>
         </div>
@@ -543,7 +543,7 @@ function BenefitsTab({ benefits, subscription, userId }: { benefits: Benefit[]; 
             <p style={{ fontWeight: 700, color: "#111827", marginBottom: 4 }}>Free Plan</p>
             <p style={{ fontSize: 13, color: "#9CA3AF" }}>Upgrade for unlimited Build It analyses</p>
           </div>
-          <Link href="/pricing" style={{ padding: "9px 18px", borderRadius: 10, background: "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
+          <Link href="/pricing" style={{ padding: "9px 18px", borderRadius: 10, background: "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
             Upgrade →
           </Link>
         </div>
@@ -615,7 +615,7 @@ function SecurityTab() {
           <div><label style={labelSt}>New Password</label><input type="password" style={inputSt} value={cpForm.next} onChange={e => setCpForm(f => ({ ...f, next: e.target.value }))} placeholder="Min. 8 chars with number and symbol" required /></div>
           <div><label style={labelSt}>Confirm New Password</label><input type="password" style={inputSt} value={cpForm.confirm} onChange={e => setCpForm(f => ({ ...f, confirm: e.target.value }))} required /></div>
           {cpMsg && <p style={{ fontSize: 13, color: cpMsg.includes("success") ? "#16A34A" : "#DC2626" }}>{cpMsg}</p>}
-          <button type="submit" disabled={cpSaving} style={{ padding: "12px", borderRadius: 10, background: cpSaving ? "#9CA3AF" : "linear-gradient(135deg,#F97316,#EA580C)", color: "#fff", border: "none", fontWeight: 700, cursor: cpSaving ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+          <button type="submit" disabled={cpSaving} style={{ padding: "12px", borderRadius: 10, background: cpSaving ? "#9CA3AF" : "linear-gradient(135deg, #EA580C, #C2410C)", color: "#fff", border: "none", fontWeight: 700, cursor: cpSaving ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
             {cpSaving ? "Saving…" : "Update Password"}
           </button>
         </form>

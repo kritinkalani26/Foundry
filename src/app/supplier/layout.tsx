@@ -26,11 +26,13 @@ function SupplierHeader() {
         <a href="/supplier" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{
             width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #F97316, #EF4444)",
+            background: "linear-gradient(135deg, #EA580C, #C2410C)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-              <path d="M12 2C8.5 5.5 7 8.5 8.5 12.5C6.5 11.5 5.5 9.5 6 7C3 10 3 15 7 18.5a7 7 0 0014 0C23.5 16 24.5 12 22 9c-1 2.5-3 3.5-5 3C19.5 8 18 4.5 12 2z"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+              <line x1="12" y1="3" x2="12" y2="21"/>
+              <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
+              <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
             </svg>
           </div>
           <span style={{ fontWeight: 800, fontSize: 18, color: "#111827" }}>Foundry</span>
@@ -131,8 +133,12 @@ function SupplierFooter() {
         <div className="resp-grid-footer">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg,#F97316,#EF4444)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.5 5.5 7 8.5 8.5 12.5C6.5 11.5 5.5 9.5 6 7C3 10 3 15 7 18.5a7 7 0 0014 0C23.5 16 24.5 12 22 9c-1 2.5-3 3.5-5 3C19.5 8 18 4.5 12 2z"/></svg>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: "linear-gradient(135deg, #EA580C, #C2410C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+                  <line x1="12" y1="3" x2="12" y2="21"/>
+                  <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
+                  <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
+                </svg>
               </div>
               <span style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>Foundry</span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "#F0FDF433", color: "#86EFAC", border: "1px solid #16A34A44" }}>Suppliers</span>

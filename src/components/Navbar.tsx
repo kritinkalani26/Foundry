@@ -32,8 +32,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="logo" onClick={() => setOpen(false)}>
           <div className="logo-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C8.5 5.5 7 8.5 8.5 12.5C6.5 11.5 5.5 9.5 6 7C3 10 3 15 7 18.5a7 7 0 0014 0C23.5 16 24.5 12 22 9c-1 2.5-3 3.5-5 3C19.5 8 18 4.5 12 2z"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+              <line x1="12" y1="3" x2="12" y2="21"/>
+              <line x1="4.2" y1="16.5" x2="19.8" y2="7.5"/>
+              <line x1="19.8" y1="16.5" x2="4.2" y2="7.5"/>
             </svg>
           </div>
           Foundry
@@ -56,7 +58,7 @@ export default function Navbar() {
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
               padding: "7px 14px", borderRadius: 8,
-              background: "linear-gradient(135deg, #F97316, #EF4444)",
+              background: "linear-gradient(135deg, #EA580C, #DC2626)",
               color: "#fff", fontSize: 13, fontWeight: 700,
               textDecoration: "none", letterSpacing: "0.01em",
               whiteSpace: "nowrap",
@@ -69,9 +71,9 @@ export default function Navbar() {
             <div style={{ position: "relative", marginLeft: 12 }}>
               <button
                 onClick={() => setUserMenu(!userMenu)}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", background: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, color: "#374151" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 10, border: "1.5px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.07)", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, color: "#E2E8F0" }}
               >
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg,#F97316,#EA580C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg,#EA580C,#C2410C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <User size={13} color="white" />
                 </div>
                 {session.user.name.split(" ")[0]}
@@ -115,14 +117,14 @@ export default function Navbar() {
           aria-label="Menu"
           style={{
             padding: 8, borderRadius: 8,
-            background: open ? "#FFF7ED" : "none",
-            border: open ? "1px solid #FED7AA" : "1px solid transparent",
+            background: open ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.06)",
+            border: open ? "1px solid rgba(249,115,22,0.35)" : "1px solid rgba(255,255,255,0.1)",
             cursor: "pointer", transition: "all 0.15s",
           }}
         >
           {open
-            ? <svg width="20" height="20" fill="none" stroke="#F97316" strokeWidth="2.5"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
-            : <svg width="20" height="20" fill="none" stroke="#374151" strokeWidth="2"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="17" y2="18"/></svg>
+            ? <svg width="20" height="20" fill="none" stroke="#FB923C" strokeWidth="2.5"><line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/></svg>
+            : <svg width="20" height="20" fill="none" stroke="#94A3B8" strokeWidth="2"><line x1="3" y1="6" x2="17" y2="6"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="18" x2="17" y2="18"/></svg>
           }
         </button>
       </div>
@@ -130,7 +132,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="mobile-menu" style={{
-          background: "#fff", borderTop: "1px solid #F3F4F6",
+          background: "#0F172A", borderTop: "1px solid rgba(255,255,255,0.07)",
           padding: "16px 24px 20px",
           flexDirection: "column", gap: 4,
         }}>
@@ -144,8 +146,8 @@ export default function Navbar() {
                 style={{
                   display: "block", padding: "12px 14px", borderRadius: 10,
                   fontSize: 15, fontWeight: 500,
-                  background: isActive ? "#FFF7ED" : "transparent",
-                  color: isActive ? "#EA580C" : "#374151",
+                  background: isActive ? "rgba(249,115,22,0.12)" : "transparent",
+                  color: isActive ? "#FB923C" : "#CBD5E1",
                   textDecoration: "none",
                 }}
               >
@@ -160,8 +162,8 @@ export default function Navbar() {
             onClick={() => setOpen(false)}
             style={{
               display: "block", padding: "12px 14px", borderRadius: 10,
-              fontSize: 15, fontWeight: 700, color: "#EA580C",
-              background: "#FFF7ED", textDecoration: "none", marginTop: 4,
+              fontSize: 15, fontWeight: 700, color: "#FB923C",
+              background: "rgba(249,115,22,0.1)", textDecoration: "none", marginTop: 4,
             }}
           >
             Become a Supplier ↗
@@ -169,14 +171,14 @@ export default function Navbar() {
           {session ? (
             <button
               onClick={() => { handleSignOut(); setOpen(false); }}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderRadius: 10, fontSize: 15, color: "#DC2626", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", marginTop: 4, width: "100%" }}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderRadius: 10, fontSize: 15, color: "#FDA4AF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", marginTop: 4, width: "100%" }}
             >
               <LogOut size={15} />
               Sign Out ({session.user.name.split(" ")[0]})
             </button>
           ) : (
             <>
-              <Link href="/auth/login" onClick={() => setOpen(false)} style={{ display: "block", padding: "12px 14px", borderRadius: 10, fontSize: 15, fontWeight: 500, color: "#374151", textDecoration: "none", marginTop: 4 }}>
+              <Link href="/auth/login" onClick={() => setOpen(false)} style={{ display: "block", padding: "12px 14px", borderRadius: 10, fontSize: 15, fontWeight: 500, color: "#CBD5E1", textDecoration: "none", marginTop: 4 }}>
                 Sign In
               </Link>
               <Link href="/auth/signup" onClick={() => setOpen(false)} className="btn btn-primary btn-lg" style={{ marginTop: 8, justifyContent: "center" }}>
