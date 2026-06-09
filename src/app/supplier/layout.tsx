@@ -25,7 +25,9 @@ function SupplierHeader() {
       }}>
         <a href="/supplier" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <div style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L13.2 10.8L22 12L13.2 13.2L12 22L10.8 13.2L2 12L10.8 10.8Z" fill="#EA580C"/>
+            </svg>
           </div>
           <span style={{ fontWeight: 800, fontSize: 18, color: "#111827" }}>Foundry</span>
           <span style={{
@@ -126,7 +128,9 @@ function SupplierFooter() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
               <div style={{ width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L13.2 10.8L22 12L13.2 13.2L12 22L10.8 13.2L2 12L10.8 10.8Z" fill="#EA580C"/>
+                </svg>
               </div>
               <span style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>Foundry</span>
               <span style={{ fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 4, background: "#F0FDF433", color: "#86EFAC", border: "1px solid #16A34A44" }}>Suppliers</span>

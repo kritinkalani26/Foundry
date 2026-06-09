@@ -43,7 +43,9 @@ export default function LoginPage() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
             <div style={{ width: 36, height: 36 }}>
-              <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(10) hue-rotate(350deg) brightness(0.8)" }} />
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L13.2 10.8L22 12L13.2 13.2L12 22L10.8 13.2L2 12L10.8 10.8Z" fill="#EA580C"/>
+              </svg>
             </div>
             <span style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>Foundry</span>
           </div>
