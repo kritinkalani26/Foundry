@@ -32,7 +32,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="logo" onClick={() => setOpen(false)}>
           <div className="logo-icon">
-            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "sepia(1) saturate(4) hue-rotate(345deg) brightness(0.75)" }} />
+            <img src="/foundry-mark.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "url(#foundry-mark) sepia(1) saturate(6) hue-rotate(345deg) brightness(1.5)" }} />
           </div>
           Foundry
         </Link>

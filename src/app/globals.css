@@ -200,9 +200,6 @@ img { max-width: 100%; display: block; }
 .logo-icon {
   width: 34px;
   height: 34px;
-  background: #0F172A;
-  border-radius: 8px;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;

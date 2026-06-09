@@ -13,6 +13,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        {/* SVG filter used by the Foundry logo mark to strip its black background */}
+        <svg style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} aria-hidden="true">
+          <defs>
+            <filter id="foundry-mark">
+              <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1 1 1 0 -0.1"/>
+            </filter>
+          </defs>
+        </svg>
         <AuthProvider>
           <ConditionalNavbar />
           <main>{children}</main>
