@@ -76,7 +76,7 @@ export default function AnalyzePage() {
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
   if (status === "loading") return null;
-  if (status === "unauthenticated") return (
+  if (status === "unauthenticated" || !session) return (
     <AuthGate
       featureName="Analyze Assembly"
       featureDescription="Upload a STEP or STP file and get instant process recommendations, material suggestions, and cost estimates for every part in your assembly."
@@ -160,7 +160,7 @@ export default function AnalyzePage() {
             storeId: cheapestStore,
           };
         }),
-        city: (session?.user as { city?: string } | undefined)?.city || "Mumbai",
+        city: (session.user as { city?: string }).city || "Mumbai",
         projectName: result.assemblyName,
       }),
     });
