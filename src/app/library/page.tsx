@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AuthGate from "@/components/AuthGate";
 
 const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "3D Print":        { color: "bg-blue-100 text-blue-800",    icon: "🖨️" },
@@ -31,6 +32,38 @@ interface SavedPart {
 
 const FILTERS = ["All", "3D Print", "CNC Mill", "Laser Cut", "Lathe", "Sheet Metal", "Urethane", "Manual/Purchase"];
 
+function LibraryPreview() {
+  return (
+    <div style={{ minHeight: "100vh", background: "#F9FAFB", padding: "40px 24px" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", marginBottom: 6 }}>Part Library</h1>
+            <p style={{ color: "#6B7280", fontSize: 15 }}>Saved parts from your assemblies. Reorder any part with one click.</p>
+          </div>
+          <div style={{ width: 160, height: 38, background: "#E5E7EB", borderRadius: 10 }} />
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
+          {["All", "3D Print", "CNC Mill", "Laser Cut", "Lathe"].map((f, i) => (
+            <div key={f} style={{ height: 30, width: f === "All" ? 64 : 88, background: i === 0 ? "#EA580C" : "#F3F4F6", borderRadius: 999 }} />
+          ))}
+        </div>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{ background: "#fff", borderRadius: 14, border: "1px solid #E5E7EB", padding: "16px 18px", marginBottom: 10, display: "flex", gap: 14, alignItems: "center" }}>
+            <div style={{ width: 40, height: 40, background: "#FFF7ED", borderRadius: 10, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ width: "40%", height: 14, background: "#F3F4F6", borderRadius: 4, marginBottom: 6 }} />
+              <div style={{ width: "25%", height: 11, background: "#F3F4F6", borderRadius: 4 }} />
+            </div>
+            <div style={{ width: 90, height: 14, background: "#F3F4F6", borderRadius: 4 }} />
+            <div style={{ width: 60, height: 30, background: "#F3F4F6", borderRadius: 8 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LibraryPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -43,10 +76,9 @@ export default function LibraryPage() {
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") { router.push("/auth/signin"); return; }
     if (status !== "authenticated") return;
     fetch("/api/parts").then(r => r.json()).then(data => { setParts(Array.isArray(data) ? data : []); setLoading(false); });
-  }, [status, router]);
+  }, [status]);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -82,9 +114,15 @@ export default function LibraryPage() {
   const personal = filtered.filter(p => !p.teamId);
   const team = filtered.filter(p => p.teamId);
 
-  if (status === "loading" || loading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
-  }
+  if (status === "loading") return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
+  if (status === "unauthenticated") return (
+    <AuthGate
+      featureName="Part Library"
+      featureDescription="Save parts from your assemblies and reorder any part with a single click. Accessible from anywhere, synced with your team."
+      preview={<LibraryPreview />}
+    />
+  );
+  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
 
   return (
     <div className="min-h-screen bg-gray-50">

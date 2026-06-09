@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AuthGate from "@/components/AuthGate";
 import type { AssemblyAnalysis, PartAnalysis, StoreInfo } from "@/app/api/analyze-assembly/route";
 import { storeEstimate } from "@/lib/analyze-utils";
 import DfmModal from "@/components/DfmModal";
@@ -21,6 +22,34 @@ const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "Manual/Purchase": { color: "bg-gray-100 text-gray-600",    icon: "🛒" },
 };
 
+
+function AnalyzePreview() {
+  return (
+    <div style={{ minHeight: "100vh", background: "#F9FAFB", padding: "40px 24px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", marginBottom: 6 }}>Analyze Assembly</h1>
+        <p style={{ color: "#6B7280", marginBottom: 28, fontSize: 15 }}>Upload a STEP file to get process, material &amp; cost estimates for every part.</p>
+        <div style={{ border: "2px dashed #D1D5DB", borderRadius: 20, padding: "64px 40px", textAlign: "center", background: "#fff", marginBottom: 24 }}>
+          <div style={{ width: 52, height: 52, background: "#F3F4F6", borderRadius: 14, margin: "0 auto 16px" }} />
+          <div style={{ width: 180, height: 20, background: "#F3F4F6", borderRadius: 4, margin: "0 auto 8px" }} />
+          <div style={{ width: 130, height: 14, background: "#F3F4F6", borderRadius: 4, margin: "0 auto" }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ background: "#fff", borderRadius: 14, border: "1px solid #E5E7EB", padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+              <div style={{ width: 36, height: 36, background: "#FFF7ED", borderRadius: 8, flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ width: "50%", height: 14, background: "#F3F4F6", borderRadius: 4, marginBottom: 6 }} />
+                <div style={{ width: "35%", height: 11, background: "#F3F4F6", borderRadius: 4 }} />
+              </div>
+              <div style={{ width: 70, height: 30, background: "#F3F4F6", borderRadius: 8 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AnalyzePage() {
   const { data: session, status } = useSession();
@@ -47,7 +76,13 @@ export default function AnalyzePage() {
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
   if (status === "loading") return null;
-  if (!session) { router.push("/auth/signin"); return null; }
+  if (status === "unauthenticated") return (
+    <AuthGate
+      featureName="Analyze Assembly"
+      featureDescription="Upload a STEP or STP file and get instant process recommendations, material suggestions, and cost estimates for every part in your assembly."
+      preview={<AnalyzePreview />}
+    />
+  );
 
   const orderableParts = result?.parts.filter(p => p.process !== "Manual/Purchase") ?? [];
 

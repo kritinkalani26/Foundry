@@ -3,10 +3,47 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import AuthGate from "@/components/AuthGate";
 
 interface TeamMember { id: string; userId: string; role: string; joinedAt: string; user: { id: string; name: string; email: string; avatarUrl?: string }; }
 interface Team { id: string; name: string; members: TeamMember[]; }
 interface Order { id: string; status: string; material: string; createdAt: string; customer: { name: string }; stlAnalysis?: { fileName: string }; notes?: string; }
+
+function TeamPreview() {
+  return (
+    <div style={{ minHeight: "100vh", background: "#F9FAFB", padding: "40px 24px" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", marginBottom: 6 }}>Teamspace</h1>
+        <p style={{ color: "#6B7280", fontSize: 15, marginBottom: 28 }}>Collaborate on orders and share your part library with your team.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+          <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #E5E7EB", padding: 24 }}>
+            <div style={{ width: 120, height: 18, background: "#F3F4F6", borderRadius: 4, marginBottom: 8 }} />
+            <div style={{ width: "80%", height: 13, background: "#F3F4F6", borderRadius: 4, marginBottom: 20 }} />
+            <div style={{ width: "100%", height: 38, background: "#F3F4F6", borderRadius: 10, marginBottom: 12 }} />
+            <div style={{ width: "100%", height: 42, background: "#DBEAFE", borderRadius: 10 }} />
+          </div>
+          <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #E5E7EB", padding: 24, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", gap: 8 }}>
+            <div style={{ fontSize: 32 }}>🔗</div>
+            <div style={{ width: 100, height: 18, background: "#F3F4F6", borderRadius: 4 }} />
+            <div style={{ width: "80%", height: 26, background: "#F3F4F6", borderRadius: 4 }} />
+          </div>
+        </div>
+        <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #E5E7EB", padding: 24 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: i < 3 ? 16 : 0, marginBottom: i < 3 ? 16 : 0, borderBottom: i < 3 ? "1px solid #F3F4F6" : "none" }}>
+              <div style={{ width: 36, height: 36, background: "#E5E7EB", borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ width: "35%", height: 13, background: "#F3F4F6", borderRadius: 4, marginBottom: 5 }} />
+                <div style={{ width: "50%", height: 11, background: "#F3F4F6", borderRadius: 4 }} />
+              </div>
+              <div style={{ width: 60, height: 22, background: "#F3F4F6", borderRadius: 999 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TeamPage() {
   const { data: session, status } = useSession();
@@ -26,7 +63,6 @@ export default function TeamPage() {
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
   useEffect(() => {
-    if (status === "unauthenticated") { router.push("/auth/signin"); return; }
     if (status !== "authenticated") return;
     fetch("/api/teams").then(r => r.json()).then((d: { team?: Team; role?: string }) => {
       setTeam(d.team ?? null);
@@ -78,9 +114,15 @@ export default function TeamPage() {
 
   const selfId = (session?.user as { id?: string })?.id;
 
-  if (status === "loading" || loading) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
-  }
+  if (status === "loading") return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
+  if (status === "unauthenticated") return (
+    <AuthGate
+      featureName="Teamspace"
+      featureDescription="Create a shared workspace for your organisation. Collaborate on orders, share your part library, and manage team members — all in one place."
+      preview={<TeamPreview />}
+    />
+  );
+  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
