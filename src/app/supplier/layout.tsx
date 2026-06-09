@@ -50,7 +50,7 @@ function SupplierHeader() {
                 padding: "8px 14px", borderRadius: 8, fontSize: 14, fontWeight: active ? 700 : 500,
                 color: active ? "#F97316" : "#6B7280",
                 background: active ? "#FFF7ED" : "transparent",
-                textDecoration: "none", transition: "all 0.15s",
+                textDecoration: "none", transition: "all 0.15s", whiteSpace: "nowrap",
               }}>
                 <span style={{ color: active ? "#F97316" : "#9CA3AF" }}>{icon}</span>
                 {label}

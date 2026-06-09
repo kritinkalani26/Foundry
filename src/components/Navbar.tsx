@@ -59,6 +59,7 @@ export default function Navbar() {
               background: "linear-gradient(135deg, #F97316, #EF4444)",
               color: "#fff", fontSize: 13, fontWeight: 700,
               textDecoration: "none", letterSpacing: "0.01em",
+              whiteSpace: "nowrap",
             }}
           >
             Become a Supplier ↗
