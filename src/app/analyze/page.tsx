@@ -160,7 +160,7 @@ export default function AnalyzePage() {
             storeId: cheapestStore,
           };
         }),
-        city: (session.user as { city?: string }).city || "Mumbai",
+        city: (session?.user as { city?: string } | undefined)?.city || "Mumbai",
         projectName: result.assemblyName,
       }),
     });
