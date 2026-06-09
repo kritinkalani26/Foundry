@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { AssemblyAnalysis, PartAnalysis, StoreInfo } from "@/app/api/analyze-assembly/route";
 import { storeEstimate } from "@/lib/analyze-utils";
+import DfmModal from "@/components/DfmModal";
 
 // StepViewer uses WebAssembly + Three.js — load client-side only
 const StepViewer = dynamic(() => import("@/components/StepViewer"), { ssr: false, loading: () => null });
@@ -15,6 +16,8 @@ const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "CNC Mill":        { color: "bg-orange-100 text-orange-800", icon: "⚙️" },
   "Laser Cut":       { color: "bg-purple-100 text-purple-800", icon: "⚡" },
   "Lathe":           { color: "bg-green-100 text-green-800",   icon: "🔩" },
+  "Sheet Metal":     { color: "bg-teal-100 text-teal-800",     icon: "🔨" },
+  "Urethane":        { color: "bg-indigo-100 text-indigo-800", icon: "🧪" },
   "Manual/Purchase": { color: "bg-gray-100 text-gray-600",    icon: "🛒" },
 };
 
@@ -39,6 +42,7 @@ export default function AnalyzePage() {
   const [savingAll, setSavingAll] = useState(false);
   const [toast, setToast] = useState("");
   const [show3D, setShow3D] = useState(false);
+  const [showDfm, setShowDfm] = useState(false);
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
@@ -298,17 +302,26 @@ export default function AnalyzePage() {
                     <p className="text-2xl font-bold text-gray-900">₹{result.totalEstimatedCostInr.toLocaleString("en-IN")}</p>
                     <p className="text-xs text-gray-400">{result.parts.length} components</p>
                   </div>
-                  <button
-                    onClick={() => setShow3D(v => !v)}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
-                      show3D
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    <span>🧊</span>
-                    {show3D ? "Hide 3D View" : "View in 3D"}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShow3D(v => !v)}
+                      className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                        show3D
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      <span>🧊</span>
+                      {show3D ? "Hide 3D View" : "View in 3D"}
+                    </button>
+                    <button
+                      onClick={() => setShowDfm(true)}
+                      className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                    >
+                      <span>🔬</span>
+                      DFM Check
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
@@ -450,6 +463,10 @@ export default function AnalyzePage() {
           </div>
         )}
       </div>
+
+      {showDfm && result && (
+        <DfmModal analysis={result} onClose={() => setShowDfm(false)} />
+      )}
     </div>
   );
 }

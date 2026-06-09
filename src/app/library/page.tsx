@@ -9,6 +9,8 @@ const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "CNC Mill":        { color: "bg-orange-100 text-orange-800", icon: "⚙️" },
   "Laser Cut":       { color: "bg-purple-100 text-purple-800", icon: "⚡" },
   "Lathe":           { color: "bg-green-100 text-green-800",   icon: "🔩" },
+  "Sheet Metal":     { color: "bg-teal-100 text-teal-800",     icon: "🔨" },
+  "Urethane":        { color: "bg-indigo-100 text-indigo-800", icon: "🧪" },
   "Manual/Purchase": { color: "bg-gray-100 text-gray-600",    icon: "🛒" },
 };
 
@@ -27,7 +29,7 @@ interface SavedPart {
   user?: { name: string };
 }
 
-const FILTERS = ["All", "3D Print", "CNC Mill", "Laser Cut", "Lathe", "Manual/Purchase"];
+const FILTERS = ["All", "3D Print", "CNC Mill", "Laser Cut", "Lathe", "Sheet Metal", "Urethane", "Manual/Purchase"];
 
 export default function LibraryPage() {
   const { data: session, status } = useSession();

@@ -39,8 +39,8 @@ function buildPrompt(assemblyName: string, description: string, parts: string[],
   return `Manufacturing engineer. Assembly: "${assemblyName}". Context: "${description || "none"}".
 Stores: ${JSON.stringify(storeContext)}
 Parts: ${parts.map((p, i) => `${i + 1}.${p}`).join(", ")}
-For each part: process (3D Print|CNC Mill|Laser Cut|Lathe|Manual/Purchase), material, reason (1 sentence), estimatedCostInr (INR), suggestedStoreIds (0-2 IDs).
-Rules: shaft/axle/rod→Lathe; flat panel/sheet→Laser Cut; metal structural plate/block→CNC Mill; fasteners/bearings/motors→Manual/Purchase; else→3D Print.
+For each part: process (3D Print|CNC Mill|Laser Cut|Lathe|Sheet Metal|Urethane|Manual/Purchase), material, reason (1 sentence), estimatedCostInr (INR), suggestedStoreIds (0-2 IDs).
+Rules: shaft/axle/rod→Lathe; flat sheet panel/bracket/enclosure made of metal→Sheet Metal; flat panel of acrylic/wood/plastic→Laser Cut; metal structural block/complex geometry→CNC Mill; low-volume cast/overmolded/rubber/grip parts→Urethane; fasteners/bearings/motors/off-shelf→Manual/Purchase; else→3D Print.
 JSON only: {"parts":[{"partName":"...","process":"...","material":"...","reason":"...","estimatedCostInr":0,"suggestedStoreIds":[]}]}`;
 }
 
@@ -129,17 +129,22 @@ async function handlePost(req: NextRequest) {
     );
   }
 
-  // Fetch active stores — all of them go into storeMap so every part can show options
-  const stores = await prisma.printerOwner.findMany({
-    where: { isActive: true, isVisible: true },
-    select: {
-      id: true,
-      businessName: true,
-      rating: true,
-      user: { select: { city: true } },
-    },
-    take: 30,
-  });
+  // Fetch active stores — non-critical; if DB is unreachable (e.g. Neon suspended) skip gracefully
+  let stores: { id: string; businessName: string | null; rating: number; user: { city: string | null } }[] = [];
+  try {
+    stores = await prisma.printerOwner.findMany({
+      where: { isActive: true, isVisible: true },
+      select: {
+        id: true,
+        businessName: true,
+        rating: true,
+        user: { select: { city: true } },
+      },
+      take: 30,
+    });
+  } catch (dbErr) {
+    console.warn("[analyze-assembly] DB unavailable, proceeding without store data:", dbErr instanceof Error ? dbErr.message : dbErr);
+  }
 
   const storeContext = stores.map(s => ({
     id: s.id,

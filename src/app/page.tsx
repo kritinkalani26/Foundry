@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { MapPin, Star, ArrowRight, CheckCircle, TrendingUp, Zap } from "lucide-react";
 
-type Category = "all" | "fabrication" | "cutting" | "machining" | "electronics";
+type Category = "all" | "fabrication" | "cutting" | "machining" | "electronics" | "forming";
 
 const EQUIPMENT = [
   {
@@ -159,6 +159,44 @@ const EQUIPMENT = [
     href: "/request?service=pcb-fabrication",
     cta: "Get PCB Quote",
   },
+  {
+    id: "sheet-metal",
+    name: "Sheet Metal Fabrication",
+    category: "forming" as Category,
+    emoji: "🔨",
+    bg: "#F0FDFA",
+    accent: "#0D9488",
+    badge: "Bending · Cutting · Welding",
+    badgeClass: "badge-teal",
+    description: "Precision sheet metal cutting, bending, and forming for enclosures, brackets, panels, and structural parts.",
+    useCases: ["Enclosures", "Brackets", "Chassis", "Panels", "Structural parts"],
+    materials: ["Mild Steel", "Stainless Steel", "Aluminium", "Galvanized", "Copper"],
+    startingPrice: 400,
+    unit: "per job",
+    turnaround: "3–5 days",
+    cities: 4,
+    href: "/request?service=sheet-metal",
+    cta: "Get Sheet Metal Quote",
+  },
+  {
+    id: "urethane-casting",
+    name: "Urethane Casting",
+    category: "forming" as Category,
+    emoji: "🧪",
+    bg: "#EEF2FF",
+    accent: "#4F46E5",
+    badge: "Soft Tooling · Low Volume",
+    badgeClass: "badge-indigo",
+    description: "Low-volume urethane casting using silicone molds — ideal for prototypes and short runs up to 50 parts.",
+    useCases: ["Prototypes", "Consumer products", "Medical housings", "Custom grips", "Art pieces"],
+    materials: ["Rigid Urethane", "Flexible Urethane", "Shore A/D variants", "Pigmented PU"],
+    startingPrice: 1200,
+    unit: "per run",
+    turnaround: "7–14 days",
+    cities: 2,
+    href: "/request?service=urethane-casting",
+    cta: "Get Urethane Quote",
+  },
 ];
 
 const DEMO_SPACES = [
@@ -201,9 +239,10 @@ const DEMO_SPACES = [
 
 const CATEGORIES: { key: Category; label: string; emoji: string }[] = [
   { key: "all",         label: "All Services",        emoji: "🏭" },
-  { key: "fabrication", label: "3D Fabrication",      emoji: "🖨️" },
+  { key: "fabrication", label: "3D Printing",         emoji: "🖨️" },
   { key: "cutting",     label: "Cutting & Engraving", emoji: "⚡" },
   { key: "machining",   label: "Machining",           emoji: "⚙️" },
+  { key: "forming",     label: "Metal & Casting",     emoji: "🔨" },
   { key: "electronics", label: "Electronics",         emoji: "🔌" },
 ];
 

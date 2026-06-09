@@ -19,7 +19,6 @@ export default function Navbar() {
     { href: "/analyze",            label: "Analyze Assembly" },
     { href: "/library",            label: "Part Library" },
     { href: "/team",               label: "Team" },
-    { href: "/owner",              label: "List Equipment" },
     { href: "/dashboard/customer", label: "My Orders" },
   ];
 
@@ -50,6 +49,20 @@ export default function Navbar() {
               </Link>
             );
           })}
+          <a
+            href="/supplier"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "7px 14px", borderRadius: 8,
+              background: "linear-gradient(135deg, #F97316, #EF4444)",
+              color: "#fff", fontSize: 13, fontWeight: 700,
+              textDecoration: "none", letterSpacing: "0.01em",
+            }}
+          >
+            Become a Supplier ↗
+          </a>
 
           {session ? (
             <div style={{ position: "relative", marginLeft: 12 }}>
@@ -139,6 +152,19 @@ export default function Navbar() {
               </Link>
             );
           })}
+          <a
+            href="/supplier"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            style={{
+              display: "block", padding: "12px 14px", borderRadius: 10,
+              fontSize: 15, fontWeight: 700, color: "#EA580C",
+              background: "#FFF7ED", textDecoration: "none", marginTop: 4,
+            }}
+          >
+            Become a Supplier ↗
+          </a>
           {session ? (
             <button
               onClick={() => { handleSignOut(); setOpen(false); }}

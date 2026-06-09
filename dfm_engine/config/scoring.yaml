@@ -1,0 +1,20 @@
+# Supplier ranking weights — must sum to 1.0.
+# Tune without code changes.
+
+weights:
+  lead_time: 0.25       # lower is better
+  location: 0.20        # same region as requester scores higher
+  capacity: 0.20        # "available" > "limited" > (full excluded by filter)
+  cost: 0.25            # lower base_cost_per_hour scores higher
+  certification: 0.10   # more certs scores higher
+
+# Requester region — update per deployment / per request if known
+requester_region: "India"
+
+# Lead-time normalisation: a supplier at this many days or fewer gets full score
+lead_time_best_days: 3
+lead_time_worst_days: 30
+
+# Cost normalisation: base_cost_per_hour (INR/hr); treat None as worst_cost
+cost_best_inr_per_hr: 500.0
+cost_worst_inr_per_hr: 5000.0

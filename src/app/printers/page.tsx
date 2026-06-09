@@ -2,20 +2,38 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MapPin, Star, TrendingUp, ArrowRight } from "lucide-react";
+import { MapPin, Star, TrendingUp, ArrowRight, Shield } from "lucide-react";
+
+// ─── Certification display map ────────────────────────────────────────────────
+
+const CERT_DISPLAY: Record<string, { label: string; color: string; bg: string }> = {
+  "iso9001":   { label: "ISO 9001",    color: "#2563EB", bg: "#EFF6FF" },
+  "as9100d":   { label: "AS9100D",     color: "#0369A1", bg: "#F0F9FF" },
+  "nadcap":    { label: "NADCAP",      color: "#0369A1", bg: "#F0F9FF" },
+  "iatf16949": { label: "IATF 16949",  color: "#92400E", bg: "#FFFBEB" },
+  "iso13485":  { label: "ISO 13485",   color: "#DC2626", bg: "#FEF2F2" },
+  "ipc610":    { label: "IPC-A-610",   color: "#16A34A", bg: "#F0FDF4" },
+  "jstd001":   { label: "J-STD-001",   color: "#16A34A", bg: "#F0FDF4" },
+  "iso14001":  { label: "ISO 14001",   color: "#15803D", bg: "#F0FDF4" },
+  "aws":       { label: "AWS D1.1",    color: "#64748B", bg: "#F8FAFC" },
+  "udyam":     { label: "MSME Udyam",  color: "#D97706", bg: "#FFFBEB" },
+  "gem":       { label: "GeM Seller",  color: "#D97706", bg: "#FFFBEB" },
+};
 
 // ─── Equipment category config ────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { id: "all",             label: "All Services",   emoji: "🏭" },
-  { id: "3d-printer",      label: "3D Printing",    emoji: "🖨️" },
-  { id: "laser-cutter",    label: "Laser Cutting",  emoji: "⚡" },
-  { id: "cnc-mill",        label: "CNC / Router",   emoji: "⚙️" },
-  { id: "lathe",           label: "Lathe",          emoji: "🔩" },
-  { id: "soldering",       label: "Electronics",    emoji: "🔌" },
-  { id: "pcb-fabrication", label: "PCB Fab",        emoji: "🟢" },
-  { id: "vinyl-cutter",    label: "Vinyl / Sign",   emoji: "✂️" },
-  { id: "water-jet",       label: "Water Jet",      emoji: "💧" },
+  { id: "all",              label: "All Services",   emoji: "🏭" },
+  { id: "3d-printer",       label: "3D Printing",    emoji: "🖨️" },
+  { id: "laser-cutter",     label: "Laser Cutting",  emoji: "⚡" },
+  { id: "cnc-mill",         label: "CNC / Router",   emoji: "⚙️" },
+  { id: "lathe",            label: "Lathe",          emoji: "🔩" },
+  { id: "sheet-metal",      label: "Sheet Metal",    emoji: "🔨" },
+  { id: "urethane-casting", label: "Urethane",       emoji: "🧪" },
+  { id: "soldering",        label: "Electronics",    emoji: "🔌" },
+  { id: "pcb-fabrication",  label: "PCB Fab",        emoji: "🟢" },
+  { id: "vinyl-cutter",     label: "Vinyl / Sign",   emoji: "✂️" },
+  { id: "water-jet",        label: "Water Jet",      emoji: "💧" },
 ] as const;
 
 type CategoryId = typeof CATEGORIES[number]["id"];
@@ -29,6 +47,7 @@ const DEMO_SPACES = [
     description: "Full-service fabrication hub with FDM/SLA printers and a 60W CO₂ laser cutter. Specialises in engineering prototypes, product enclosures, and custom signage.",
     badge: "Top Rated", badgeColor: "#D97706", badgeBg: "#FFFBEB",
     categories: ["3d-printer", "laser-cutter"],
+    certifications: ["iso9001", "udyam"],
     equipment: [
       { category: "3d-printer",   emoji: "🖨️", label: "FDM Printer",   spec: "220×220×250mm · PLA / ABS / PETG" },
       { category: "3d-printer",   emoji: "🖨️", label: "SLA Printer",   spec: "195×120×245mm · Resin" },
@@ -42,6 +61,7 @@ const DEMO_SPACES = [
     description: "Serving Kota's 1.5 lakh engineering students since 2021. Quick-turnaround FDM and resin models, same-day delivery on most prints.",
     badge: "High Demand", badgeColor: "#DC2626", badgeBg: "#FEF2F2",
     categories: ["3d-printer"],
+    certifications: ["udyam", "gem"],
     equipment: [
       { category: "3d-printer", emoji: "🖨️", label: "FDM Printer", spec: "220×220×250mm · PLA / PETG" },
       { category: "3d-printer", emoji: "🖨️", label: "Resin Printer", spec: "195×120×245mm · Standard / ABS-like Resin" },
@@ -54,6 +74,7 @@ const DEMO_SPACES = [
     description: "Professional CNC milling and metal lathe services. 3-axis VMC up to 500×400×100mm travel. Ideal for custom brackets, shafts, and jigs.",
     badge: "Metal Specialist", badgeColor: "#2563EB", badgeBg: "#EFF6FF",
     categories: ["cnc-mill", "lathe"],
+    certifications: ["iso9001", "aws", "udyam"],
     equipment: [
       { category: "cnc-mill", emoji: "⚙️", label: "3-Axis CNC Mill",  spec: "500×400×100mm · Aluminum / Steel / Brass" },
       { category: "lathe",    emoji: "🔩", label: "Metal Lathe",       spec: "Ø300mm × 750mm · Steel / Aluminum / Copper" },
@@ -66,6 +87,7 @@ const DEMO_SPACES = [
     description: "Premium SLA/Resin printing for dental, jewelry, and architectural models. High-detail prints at 25µm layer height.",
     badge: "Resin Specialist", badgeColor: "#7C3AED", badgeBg: "#F5F3FF",
     categories: ["3d-printer"],
+    certifications: ["iso13485", "iso9001"],
     equipment: [
       { category: "3d-printer", emoji: "🖨️", label: "SLA Printer (High Res)", spec: "145×145×185mm · 25µm · Dental / Jewelry Resin" },
       { category: "3d-printer", emoji: "🖨️", label: "FDM Printer",            spec: "250×210×210mm · PLA / PETG / ABS" },
@@ -78,6 +100,7 @@ const DEMO_SPACES = [
     description: "Electronics prototyping and PCB fabrication studio. Reflow oven, hot air rework, and in-house PCB etching up to double-layer boards.",
     badge: "Electronics Hub", badgeColor: "#16A34A", badgeBg: "#F0FDF4",
     categories: ["soldering", "pcb-fabrication"],
+    certifications: ["ipc610", "jstd001", "udyam"],
     equipment: [
       { category: "soldering",       emoji: "🔌", label: "Reflow Oven + Hot Air",  spec: "Max PCB 300×400mm · SMD / Through-hole" },
       { category: "pcb-fabrication", emoji: "🟢", label: "PCB Fabrication",        spec: "Double-sided · Min trace 0.15mm · FR4" },
@@ -90,6 +113,7 @@ const DEMO_SPACES = [
     description: "Laser cutting and vinyl sign making for businesses, events, and personalised gifts. Bulk orders welcome with volume discounts.",
     badge: "Signage Expert", badgeColor: "#0891B2", badgeBg: "#ECFEFF",
     categories: ["laser-cutter", "vinyl-cutter"],
+    certifications: ["udyam"],
     equipment: [
       { category: "laser-cutter", emoji: "⚡", label: "CO₂ Laser",         spec: "900×600mm · 80W · Wood / Acrylic / MDF" },
       { category: "vinyl-cutter", emoji: "✂️", label: "Roll Vinyl Cutter", spec: "Max 610mm wide · Adhesive / HTV / Reflective" },
@@ -102,6 +126,7 @@ const DEMO_SPACES = [
     description: "One-stop prototype shop — 3D printing, CNC routing, and water jet cutting under one roof. Serving startups and R&D teams.",
     badge: "Full Service", badgeColor: "#F97316", badgeBg: "#FFF7ED",
     categories: ["3d-printer", "cnc-mill", "water-jet"],
+    certifications: ["iso9001", "iso14001", "gem"],
     equipment: [
       { category: "3d-printer", emoji: "🖨️", label: "FDM Printer (Large)", spec: "300×300×400mm · PLA / ABS / Nylon" },
       { category: "cnc-mill",   emoji: "⚙️", label: "CNC Router",          spec: "1200×900mm · Wood / Acrylic / Aluminium" },
@@ -113,16 +138,37 @@ const DEMO_SPACES = [
 
 const ALL_CITIES = ["All Cities", ...Array.from(new Set(DEMO_SPACES.map(s => s.city)))];
 
+const CERT_FILTER_OPTIONS = [
+  { id: "iso9001",   label: "ISO 9001" },
+  { id: "as9100d",   label: "AS9100D" },
+  { id: "iatf16949", label: "IATF 16949" },
+  { id: "iso13485",  label: "ISO 13485" },
+  { id: "ipc610",    label: "IPC-A-610" },
+  { id: "jstd001",   label: "J-STD-001" },
+  { id: "aws",       label: "AWS D1.1" },
+  { id: "udyam",     label: "MSME Udyam" },
+  { id: "gem",       label: "GeM Seller" },
+  { id: "iso14001",  label: "ISO 14001" },
+];
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SpacesPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [activeCity, setActiveCity] = useState("All Cities");
+  const [requiredCerts, setRequiredCerts] = useState<string[]>([]);
+
+  function toggleCertFilter(id: string) {
+    setRequiredCerts(prev =>
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  }
 
   const filtered = DEMO_SPACES.filter(s => {
     const cityMatch = activeCity === "All Cities" || s.city === activeCity;
     const catMatch  = activeCategory === "all" || s.categories.includes(activeCategory as never);
-    return cityMatch && catMatch;
+    const certMatch = requiredCerts.length === 0 || requiredCerts.every(c => s.certifications.includes(c));
+    return cityMatch && catMatch && certMatch;
   });
 
   const activeCat = CATEGORIES.find(c => c.id === activeCategory)!;
@@ -165,7 +211,7 @@ export default function SpacesPage() {
           </div>
 
           {/* City filter */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
             {ALL_CITIES.map(city => {
               const isActive = city === activeCity;
               return (
@@ -185,6 +231,42 @@ export default function SpacesPage() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Certification filter */}
+          <div style={{ borderTop: "1px solid #F3F4F6", paddingTop: 16 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <Shield size={12} /> Required Certifications (optional)
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {CERT_FILTER_OPTIONS.map(opt => {
+                const active = requiredCerts.includes(opt.id);
+                const disp = CERT_DISPLAY[opt.id];
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => toggleCertFilter(opt.id)}
+                    style={{
+                      padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                      border: active ? `2px solid ${disp?.color ?? "#374151"}` : "2px solid #E5E7EB",
+                      background: active ? (disp?.bg ?? "#F3F4F6") : "#fff",
+                      color: active ? (disp?.color ?? "#374151") : "#9CA3AF",
+                      cursor: "pointer", fontFamily: "inherit",
+                      transition: "all 0.12s",
+                      display: "flex", alignItems: "center", gap: 5,
+                    }}
+                  >
+                    {active && <Shield size={10} />}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            {requiredCerts.length > 0 && (
+              <button onClick={() => setRequiredCerts([])} style={{ marginTop: 8, fontSize: 12, color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                Clear cert filter ×
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -239,7 +321,7 @@ export default function SpacesPage() {
                   </p>
 
                   {/* Equipment chips */}
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: space.certifications.length > 0 ? 10 : 0 }}>
                     {space.equipment.map((eq, i) => (
                       <div key={i} style={{
                         display: "inline-flex", alignItems: "center", gap: 6,
@@ -254,6 +336,25 @@ export default function SpacesPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Certification badges */}
+                  {space.certifications.length > 0 && (
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                      <Shield size={11} color="#9CA3AF" />
+                      {space.certifications.map(cid => {
+                        const d = CERT_DISPLAY[cid];
+                        if (!d) return null;
+                        return (
+                          <span key={cid} style={{
+                            fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
+                            color: d.color, background: d.bg, border: `1px solid ${d.color}33`,
+                          }}>
+                            {d.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* CTA */}
@@ -297,7 +398,7 @@ export default function SpacesPage() {
             className="btn btn-white btn-lg"
             style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
           >
-            List My Equipment <ArrowRight size={16} />
+            Become a Supplier <ArrowRight size={16} />
           </Link>
         </div>
       </div>

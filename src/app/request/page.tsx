@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle, Upload, Loader2, Cpu, ChevronDown } from "lucide-react";
+import { ArrowLeft, CheckCircle, Upload, Loader2, Cpu, ChevronDown, Shield } from "lucide-react";
 
 // ─── Service metadata ─────────────────────────────────────────────────────────
 
@@ -85,9 +85,45 @@ const SERVICE_META: Record<string, {
     materialCodes: { "HASL (Standard)": 0, "ENIG (Gold)": 1, OSP: 2 },
     defaultParams: { areaCm2: 100, layers: 2, quantity: 10, minTraceMm: 0.2 },
   },
+  "sheet-metal": {
+    name: "Sheet Metal Fabrication", emoji: "🔨",
+    description: "Upload your 2D design (DXF, SVG) and specify material and thickness for cutting, bending, and forming.",
+    fileTypes: "DXF, SVG, PDF, STEP",
+    fields: ["dimensions", "thickness", "quantity"],
+    materials: ["Mild Steel", "Stainless Steel", "Aluminium", "Galvanized Steel", "Copper", "Brass"],
+    modelId: "laser-cutter",
+    materialCodes: { "Mild Steel": 0, "Stainless Steel": 1, Aluminium: 2, "Galvanized Steel": 3, Copper: 4, Brass: 5 },
+    defaultParams: { widthMm: 300, heightMm: 200, thicknessMm: 2, quantity: 1 },
+  },
+  "urethane-casting": {
+    name: "Urethane Casting", emoji: "🧪",
+    description: "Low-volume casting using silicone molds. Upload your 3D model and specify material hardness and quantity.",
+    fileTypes: "STL, STEP, OBJ",
+    fields: ["dimensions", "quantity"],
+    materials: ["Rigid Urethane (Shore D)", "Flexible Urethane (Shore A)", "Semi-rigid PU", "Pigmented / Coloured PU"],
+    modelId: "cnc-mill",
+    materialCodes: { "Rigid Urethane (Shore D)": 0, "Flexible Urethane (Shore A)": 1, "Semi-rigid PU": 2, "Pigmented / Coloured PU": 3 },
+    defaultParams: { stockVolumeCm3: 150, materialCode: 0, complexity: 2, numSetups: 1 },
+  },
 };
 
 const CITIES = ["Kota", "Indore", "Patna", "Nagpur", "Bhopal", "Varanasi"];
+
+// ─── Certification options for customer order filter ──────────────────────────
+
+const CERT_OPTIONS = [
+  { id: "iso9001",   label: "ISO 9001:2015",   desc: "Quality Management",       color: "#2563EB", bg: "#EFF6FF" },
+  { id: "as9100d",   label: "AS9100D",          desc: "Aerospace QMS",            color: "#0369A1", bg: "#F0F9FF" },
+  { id: "nadcap",    label: "NADCAP",           desc: "Aerospace Special Process", color: "#0369A1", bg: "#F0F9FF" },
+  { id: "iatf16949", label: "IATF 16949",       desc: "Automotive QMS",           color: "#92400E", bg: "#FFFBEB" },
+  { id: "iso13485",  label: "ISO 13485",        desc: "Medical Devices",          color: "#DC2626", bg: "#FEF2F2" },
+  { id: "ipc610",    label: "IPC-A-610",        desc: "Electronics Assembly",     color: "#16A34A", bg: "#F0FDF4" },
+  { id: "jstd001",   label: "J-STD-001",        desc: "Soldering Requirements",   color: "#16A34A", bg: "#F0FDF4" },
+  { id: "aws",       label: "AWS D1.1",         desc: "Structural Welding",       color: "#64748B", bg: "#F8FAFC" },
+  { id: "iso14001",  label: "ISO 14001",        desc: "Environmental Mgmt",       color: "#15803D", bg: "#F0FDF4" },
+  { id: "udyam",     label: "MSME Udyam",       desc: "India MSME Registration",  color: "#D97706", bg: "#FFFBEB" },
+  { id: "gem",       label: "GeM Seller",       desc: "Govt e-Marketplace",       color: "#D97706", bg: "#FFFBEB" },
+];
 
 // ─── ML price panel ───────────────────────────────────────────────────────────
 
@@ -203,10 +239,11 @@ function MLPricePanel({
   }, [serviceKey, meta, form, extraSliders]);
 
   useEffect(() => {
+    if (!form.material) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(fetchEstimate, 450);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [fetchEstimate]);
+  }, [fetchEstimate, form.material]);
 
   return (
     <div style={{
@@ -257,10 +294,16 @@ function MLPricePanel({
             Gradient boosting model trained on Indian makerspace pricing data. Final quote from the space may vary.
           </div>
         </>
-      ) : (
+      ) : loading ? (
         <div style={{ textAlign: "center", padding: "24px 0", color: "#9CA3AF" }}>
           <Loader2 size={28} className="spin" style={{ margin: "0 auto 12px" }} />
-          <p style={{ fontSize: 13 }}>Calculating estimate...</p>
+          <p style={{ fontSize: 13 }}>Calculating estimate…</p>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center", padding: "24px 0", color: "#9CA3AF" }}>
+          <Cpu size={28} style={{ margin: "0 auto 12px", opacity: 0.35 }} />
+          <p style={{ fontSize: 13, fontWeight: 600, color: "#6B7280" }}>Select a material to see a price estimate</p>
+          <p style={{ fontSize: 12, marginTop: 4 }}>The ML model estimates based on your specs</p>
         </div>
       )}
     </div>
@@ -592,6 +635,11 @@ function RequestPageContent() {
   const [extraSliders, setSliders] = useState<Record<string, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [requiredCerts, setRequiredCerts] = useState<string[]>([]);
+
+  function toggleCert(id: string) {
+    setRequiredCerts(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -769,6 +817,45 @@ function RequestPageContent() {
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     required />
+                </div>
+
+                {/* Certification requirements */}
+                <div style={{ borderTop: "1px solid #F3F4F6", paddingTop: 20 }}>
+                  <label style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Shield size={13} color="#6B7280" />
+                    Required Supplier Certifications
+                    <span style={{ fontWeight: 400, color: "#9CA3AF", textTransform: "none", letterSpacing: 0, fontSize: 12 }}>(optional — only certified suppliers will be matched)</span>
+                  </label>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {CERT_OPTIONS.map((opt) => {
+                      const active = requiredCerts.includes(opt.id);
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => toggleCert(opt.id)}
+                          style={{
+                            padding: "7px 14px", borderRadius: 999, fontSize: 12, fontWeight: 700,
+                            border: active ? `2px solid ${opt.color}` : "2px solid #E5E7EB",
+                            background: active ? opt.bg : "#fff",
+                            color: active ? opt.color : "#9CA3AF",
+                            cursor: "pointer", fontFamily: "inherit",
+                            transition: "all 0.12s",
+                            display: "flex", alignItems: "center", gap: 5,
+                          }}
+                        >
+                          {active && <Shield size={11} />}
+                          <span>{opt.label}</span>
+                          <span style={{ fontWeight: 400, opacity: 0.7 }}>· {opt.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {requiredCerts.length > 0 && (
+                    <div style={{ marginTop: 10, padding: "10px 14px", background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, fontSize: 12, color: "#1D4ED8" }}>
+                      Only showing suppliers holding: {requiredCerts.map(id => CERT_OPTIONS.find(o => o.id === id)?.label).filter(Boolean).join(", ")}
+                    </div>
+                  )}
                 </div>
 
                 <button type="submit" disabled={loading} className="btn btn-primary btn-lg" style={{ width: "100%", justifyContent: "center", fontSize: 15 }}>

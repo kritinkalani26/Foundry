@@ -47,3 +47,9 @@ prisma/*.db-journal
 # Dev server logs
 dev-out.txt
 dev-err.txt
+
+# WASM + worker files (copied from node_modules at build time)
+/public/occt-import-js.wasm
+/public/occt-import-js-worker.js
+/public/occt-import-js.js
+/public/step-parser-worker.js

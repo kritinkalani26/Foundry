@@ -125,11 +125,12 @@ def collect_3d_printer(n: int = 500) -> None:
         log.info("  falling back to published rate table")
 
     # Per-gram material rates (INR) from 3Ding + Makenica (2024)
+    rates = live_rates or {}
     MAT_RATE = {
-        0: live_rates.get("PLA",   6.0),   # PLA
-        1: live_rates.get("ABS",   7.5),   # ABS
-        2: live_rates.get("PETG",  8.5),   # PETG
-        3: live_rates.get("RESIN", 20.0),  # Resin
+        0: rates.get("PLA",   6.0),   # PLA
+        1: rates.get("ABS",   7.5),   # ABS
+        2: rates.get("PETG",  8.5),   # PETG
+        3: rates.get("RESIN", 20.0),  # Resin
     }
     # PLA density ~1.24 g/cm³, ABS ~1.05, PETG ~1.27, Resin ~1.15
     DENSITY = {0: 1.24, 1: 1.05, 2: 1.27, 3: 1.15}
@@ -291,6 +292,7 @@ def collect_cnc_mill(n: int = 450) -> None:
 
     # Hourly rates (INR) — validated against IndiaMART + Xometry India (2024)
     # (lo, hi) per material code: 0=wood, 1=plastic, 2=aluminum, 3=steel/SS
+    live = live or {}
     HR_RANGE = {
         0: live.get("wood",     (280, 480)),
         1: live.get("plastic",  (250, 450)),
@@ -361,6 +363,7 @@ def collect_lathe(n: int = 420) -> None:
     else:
         log.info("  using IndiaMART rate table (2024 cross-check)")
 
+    live = live or {}
     HR_RANGE = {
         0: live.get("steel",    (280, 520)),  # mild steel
         1: live.get("aluminum", (220, 400)),  # aluminum

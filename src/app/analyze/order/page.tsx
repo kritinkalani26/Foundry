@@ -11,6 +11,8 @@ const PROCESS_STYLE: Record<string, { color: string; icon: string }> = {
   "CNC Mill":        { color: "bg-orange-100 text-orange-800", icon: "⚙️" },
   "Laser Cut":       { color: "bg-purple-100 text-purple-800", icon: "⚡" },
   "Lathe":           { color: "bg-green-100 text-green-800",   icon: "🔩" },
+  "Sheet Metal":     { color: "bg-teal-100 text-teal-800",     icon: "🔨" },
+  "Urethane":        { color: "bg-indigo-100 text-indigo-800", icon: "🧪" },
   "Manual/Purchase": { color: "bg-gray-100 text-gray-600",    icon: "🛒" },
 };
 
