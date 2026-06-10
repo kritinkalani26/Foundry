@@ -365,11 +365,12 @@ model Team {
 }
 
 model TeamMember {
-  id       String   @id @default(cuid())
+  id       String    @id @default(cuid())
   teamId   String
   userId   String
-  role     String   @default("MEMBER") // "ADMIN" | "MEMBER"
-  joinedAt DateTime @default(now())
+  role     String    @default("MEMBER") // "ADMIN" | "MEMBER"
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -377,6 +378,7 @@ model TeamMember {
   @@unique([teamId, userId])
   @@index([teamId])
   @@index([userId])
+  @@index([userId, leftAt])
 }
 
 model TeamInvite {

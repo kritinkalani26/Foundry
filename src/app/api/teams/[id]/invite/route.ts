@@ -9,7 +9,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const member = await db.teamMember.findFirst({ where: { teamId: params.id, userId: session.user.id, role: "ADMIN" } });
+  const member = await db.teamMember.findFirst({ where: { teamId: params.id, userId: session.user.id, role: "ADMIN", leftAt: null } });
   if (!member) return NextResponse.json({ error: "Only team admins can create invites" }, { status: 403 });
 
   // Expire any old invites and create a fresh one

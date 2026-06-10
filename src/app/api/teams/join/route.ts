@@ -16,13 +16,22 @@ export async function POST(req: NextRequest) {
   if (!invite) return NextResponse.json({ error: "Invalid invite link" }, { status: 404 });
   if (new Date(invite.expiresAt) < new Date()) return NextResponse.json({ error: "Invite has expired" }, { status: 410 });
 
-  // Already in a team?
-  const existing = await db.teamMember.findFirst({ where: { userId: session.user.id } });
+  // Already an active member of this specific team?
+  const activeHere = await db.teamMember.findFirst({
+    where: { userId: session.user.id, teamId: invite.teamId, leftAt: null },
+  });
+  if (activeHere) return NextResponse.json({ error: "You are already in this team" }, { status: 400 });
+
+  // If they were previously in this team and left, reactivate their record
+  const existing = await db.teamMember.findFirst({ where: { teamId: invite.teamId, userId: session.user.id } });
   if (existing) {
-    if (existing.teamId === invite.teamId) return NextResponse.json({ error: "You are already in this team" }, { status: 400 });
-    return NextResponse.json({ error: "Leave your current team before joining another" }, { status: 400 });
+    await db.teamMember.update({
+      where: { id: existing.id },
+      data: { leftAt: null, joinedAt: new Date(), role: "MEMBER" },
+    });
+  } else {
+    await db.teamMember.create({ data: { teamId: invite.teamId, userId: session.user.id, role: "MEMBER" } });
   }
 
-  await db.teamMember.create({ data: { teamId: invite.teamId, userId: session.user.id, role: "MEMBER" } });
   return NextResponse.json({ teamId: invite.teamId, teamName: invite.team.name });
 }

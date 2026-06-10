@@ -22,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // Allow team members to reorder team parts
   if (part.teamId) {
-    const member = await db.teamMember.findFirst({ where: { userId: session.user.id, teamId: part.teamId } });
+    const member = await db.teamMember.findFirst({ where: { userId: session.user.id, teamId: part.teamId, leftAt: null } });
     if (!member && part.userId !== session.user.id) return NextResponse.json({ error: "Not authorised" }, { status: 403 });
   } else if (part.userId !== session.user.id) {
     return NextResponse.json({ error: "Not authorised" }, { status: 403 });

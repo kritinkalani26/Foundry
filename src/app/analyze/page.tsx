@@ -72,8 +72,17 @@ export default function AnalyzePage() {
   const [toast, setToast] = useState("");
   const [show3D, setShow3D] = useState(false);
   const [showDfm, setShowDfm] = useState(false);
+  const [myTeams, setMyTeams] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 
   const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
+
+  // Load user's teams once authenticated
+  if (status === "authenticated" && myTeams.length === 0) {
+    fetch("/api/teams").then(r => r.json()).then((d: { teams?: Array<{ team: { id: string; name: string } }> }) => {
+      setMyTeams(d.teams?.map(e => ({ id: e.team.id, name: e.team.name })) ?? []);
+    });
+  }
 
   if (status === "loading") return null;
   if (status === "unauthenticated" || !session) return (
@@ -201,11 +210,13 @@ export default function AnalyzePage() {
           estimatedCostInr: part.estimatedCostInr,
           assemblyName: result?.assemblyName,
           notes: part.reason,
+          teamId: selectedTeamId,
         }),
       });
       if (res.ok) {
         setSavedParts(prev => new Set(prev).add(part.partName));
-        showToast(`"${part.partName}" saved to library`);
+        const teamName = myTeams.find(t => t.id === selectedTeamId)?.name;
+        showToast(`"${part.partName}" saved${teamName ? ` to ${teamName}` : " to library"}`);
       } else {
         showToast("Failed to save part");
       }
@@ -233,6 +244,7 @@ export default function AnalyzePage() {
             estimatedCostInr: part.estimatedCostInr,
             assemblyName: result.assemblyName,
             notes: part.reason,
+            teamId: selectedTeamId,
           }),
         });
         if (res.ok) { setSavedParts(prev => new Set(prev).add(part.partName)); count++; }
@@ -443,6 +455,16 @@ export default function AnalyzePage() {
                   </span>
                 ) : `Order All ${orderableParts.length} Parts (cheapest)`}
               </button>
+              {myTeams.length > 0 && (
+                <select
+                  value={selectedTeamId ?? ""}
+                  onChange={e => setSelectedTeamId(e.target.value || null)}
+                  className="rounded-xl border border-gray-200 text-gray-700 text-sm font-medium py-2.5 px-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="">Personal library</option>
+                  {myTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              )}
               <button
                 onClick={saveAllParts}
                 disabled={savingAll || savedParts.size === result.parts.length}

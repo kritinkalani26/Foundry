@@ -9,28 +9,42 @@ export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const membership = await db.teamMember.findFirst({
-    where: { userId: session.user.id },
-    include: {
-      team: {
-        include: {
-          members: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } } },
+  const [memberships, pastMemberships] = await Promise.all([
+    db.teamMember.findMany({
+      where: { userId: session.user.id, leftAt: null },
+      include: {
+        team: {
+          include: {
+            members: {
+              where: { leftAt: null },
+              include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+            },
+          },
         },
       },
-    },
-  });
+    }),
+    db.teamMember.findMany({
+      where: { userId: session.user.id, leftAt: { not: null } },
+      include: { team: { select: { id: true, name: true } } },
+      orderBy: { leftAt: "desc" },
+    }),
+  ]);
 
-  if (!membership) return NextResponse.json({ team: null });
-  return NextResponse.json({ team: membership.team, role: membership.role });
+  return NextResponse.json({
+    teams: memberships.map((m: { team: object; role: string }) => ({ team: m.team, role: m.role })),
+    pastTeams: pastMemberships.map((m: { team: { id: string; name: string }; role: string; joinedAt: string; leftAt: string }) => ({
+      id: m.team.id,
+      name: m.team.name,
+      role: m.role,
+      joinedAt: m.joinedAt,
+      leftAt: m.leftAt,
+    })),
+  });
 }
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  // Check not already in a team
-  const existing = await db.teamMember.findFirst({ where: { userId: session.user.id } });
-  if (existing) return NextResponse.json({ error: "You are already in a team. Leave it first." }, { status: 400 });
 
   const { name } = await req.json() as { name: string };
   if (!name?.trim()) return NextResponse.json({ error: "Team name is required" }, { status: 400 });
@@ -41,7 +55,12 @@ export async function POST(req: NextRequest) {
       createdById: session.user.id,
       members: { create: { userId: session.user.id, role: "ADMIN" } },
     },
-    include: { members: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } } } },
+    include: {
+      members: {
+        where: { leftAt: null },
+        include: { user: { select: { id: true, name: true, email: true, avatarUrl: true } } },
+      },
+    },
   });
 
   return NextResponse.json({ team, role: "ADMIN" }, { status: 201 });
