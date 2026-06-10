@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", confirm: "",
     role: "CUSTOMER", city: "",
@@ -51,7 +53,7 @@ export default function SignupPage() {
     }
 
     await signIn("credentials", { email: form.email, password: form.password, redirect: false });
-    router.push("/");
+    router.push(callbackUrl);
     router.refresh();
   }
 

@@ -17,7 +17,7 @@ export default function JoinTeamPage() {
   useEffect(() => {
     if (status === "unauthenticated") {
       // Redirect to sign-in and come back after
-      router.push(`/auth/signin?callbackUrl=/team/join/${token}`);
+      router.push(`/auth/login?callbackUrl=/team/join/${token}`);
       return;
     }
     if (status !== "authenticated") return;

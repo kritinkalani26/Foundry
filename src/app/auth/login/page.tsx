@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
@@ -31,7 +33,7 @@ export default function LoginPage() {
     } else if (result?.error) {
       setError("Incorrect email or password.");
     } else {
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     }
   }
@@ -102,7 +104,7 @@ export default function LoginPage() {
 
         <p style={{ textAlign: "center", marginTop: 20, fontSize: 14, color: "#6B7280" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/auth/signup" style={{ color: "#F97316", fontWeight: 600, textDecoration: "none" }}>
+          <Link href={`/auth/signup${callbackUrl !== "/" ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} style={{ color: "#F97316", fontWeight: 600, textDecoration: "none" }}>
             Create one
           </Link>
         </p>
