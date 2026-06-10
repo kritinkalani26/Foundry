@@ -127,7 +127,7 @@ export default async function OrderPage({ params }: PageProps) {
     );
   }
 
-  return <OrderPageContent order={dbOrder as typeof DEMO_ORDER} isDemo={false} />;
+  return <OrderPageContent order={dbOrder as unknown as typeof DEMO_ORDER} isDemo={false} />;
 }
 
 function OrderPageContent({
