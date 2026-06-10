@@ -45,7 +45,7 @@ function PartOrderInner() {
   }, []);
 
   if (status === "loading") return null;
-  if (!session) { router.push("/auth/signin"); return null; }
+  if (!session) { router.push("/auth/login"); return null; }
 
   if (!partName) {
     return (
