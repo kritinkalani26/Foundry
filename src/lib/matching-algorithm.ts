@@ -91,6 +91,9 @@ export function matchPrinters(
       ...owner,
       distanceKm: Math.round(distanceKm * 10) / 10,
       score: Math.round(score * 100) / 100,
+      distScore: Math.round(distScore * 100) / 100,
+      ratingScore: Math.round(ratingScore * 100) / 100,
+      priceScore: Math.round(priceScore * 100) / 100,
       quotedPrice: Math.round(quotedPrice),
       turnaroundDays: estimateTurnaround(distanceKm, owner.rating),
     } as MatchedPrinter;

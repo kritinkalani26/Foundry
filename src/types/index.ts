@@ -93,6 +93,9 @@ export interface PrinterOwnerProfile {
 export interface MatchedPrinter extends PrinterOwnerProfile {
   distanceKm: number;
   score: number;
+  distScore: number;
+  ratingScore: number;
+  priceScore: number;
   quotedPrice: number;
   turnaroundDays: number;
 }

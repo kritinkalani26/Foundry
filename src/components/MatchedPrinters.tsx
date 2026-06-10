@@ -15,21 +15,21 @@ const DEMO: MatchedPrinter[] = [
   {
     id: "demo-1", businessName: "MakerSpace Indore", description: "Professional FDM printing, 5 years experience",
     rating: 4.8, totalRatings: 234, surgeMultiplier: 1.0,
-    distanceKm: 3.2, score: 0.91, quotedPrice: 418, turnaroundDays: 2,
+    distanceKm: 3.2, score: 0.93, distScore: 1.0, ratingScore: 1.0, priceScore: 0.72, quotedPrice: 418, turnaroundDays: 2,
     user: { name: "Rahul Sharma", city: "Indore", lat: 22.72, lng: 75.86 },
     printers: [{ id: "p1", name: "Ender 3 Pro", type: "FDM", isActive: true, maxBuildX: 220, maxBuildY: 220, maxBuildZ: 250, materials: ["PLA", "ABS", "PETG"] }],
   },
   {
     id: "demo-2", businessName: "3D Print Hub", description: "FDM and Resin, quick turnaround",
     rating: 4.5, totalRatings: 89, surgeMultiplier: 1.2,
-    distanceKm: 7.8, score: 0.76, quotedPrice: 501, turnaroundDays: 2,
+    distanceKm: 7.8, score: 0.44, distScore: 0.59, ratingScore: 0.57, priceScore: 0.0, quotedPrice: 501, turnaroundDays: 2,
     user: { name: "Priya Patel", city: "Indore", lat: 22.73, lng: 75.88 },
     printers: [{ id: "p2", name: "Photon Mono", type: "RESIN", isActive: true, maxBuildX: 130, maxBuildY: 80, maxBuildZ: 165, materials: ["RESIN"] }],
   },
   {
     id: "demo-3", businessName: "QuickPrint Studio", description: "Budget-friendly FDM prints",
     rating: 4.1, totalRatings: 45, surgeMultiplier: 1.0,
-    distanceKm: 14.5, score: 0.58, quotedPrice: 385, turnaroundDays: 3,
+    distanceKm: 14.5, score: 0.25, distScore: 0.0, ratingScore: 0.0, priceScore: 1.0, quotedPrice: 385, turnaroundDays: 3,
     user: { name: "Amit Verma", city: "Indore", lat: 22.71, lng: 75.87 },
     printers: [{ id: "p3", name: "CR-10", type: "FDM", isActive: true, maxBuildX: 300, maxBuildY: 300, maxBuildZ: 400, materials: ["PLA", "ABS"] }],
   },
@@ -77,9 +77,24 @@ export default function MatchedPrinters({ metrics, settings, onSelect }: Props) 
 
   const list = printers.length ? printers : DEMO;
 
+  // Derive recommendation tags
+  const cheapestId = [...list].sort((a, b) => a.quotedPrice - b.quotedPrice)[0]?.id;
+  const nearestId  = [...list].sort((a, b) => a.distanceKm - b.distanceKm)[0]?.id;
+  const topRatedId = [...list].sort((a, b) => b.rating - a.rating)[0]?.id;
+
+  function getTag(printer: MatchedPrinter, idx: number): { label: string; color: string; bg: string } | null {
+    if (idx === 0) return { label: "Best Match", color: "#fff", bg: "#F97316" };
+    if (printer.id === cheapestId) return { label: "Cheapest", color: "#15803D", bg: "#DCFCE7" };
+    if (printer.id === nearestId)  return { label: "Nearest",  color: "#1D4ED8", bg: "#DBEAFE" };
+    if (printer.id === topRatedId) return { label: "Top Rated", color: "#92400E", bg: "#FEF3C7" };
+    return null;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 720, margin: "0 auto" }}>
-      {list.map((printer, idx) => (
+      {list.map((printer, idx) => {
+        const tag = getTag(printer, idx);
+        return (
         <div
           key={printer.id}
           className="match-card"
@@ -136,28 +151,43 @@ export default function MatchedPrinters({ metrics, settings, onSelect }: Props) 
                   </span>
                 </div>
 
-                {/* Match score bar */}
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-                    <span style={{ fontSize: 12, color: "#9CA3AF", fontWeight: 500 }}>Match score</span>
+                {/* Score breakdown */}
+                <div style={{ marginBottom: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                  {[
+                    { label: "📍 Proximity", value: printer.distScore, weight: "40%" },
+                    { label: "⭐ Rating",    value: printer.ratingScore, weight: "35%" },
+                    { label: "💰 Price",     value: printer.priceScore,  weight: "25%" },
+                  ].map(({ label, value, weight }) => (
+                    <div key={label}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                        <span style={{ fontSize: 11, color: "#9CA3AF", fontWeight: 500 }}>{label} <span style={{ color: "#D1D5DB" }}>·{weight}</span></span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#374151" }}>{Math.round(value * 100)}%</span>
+                      </div>
+                      <div style={{ height: 5, borderRadius: 99, background: "#F3F4F6" }}>
+                        <div style={{ width: `${value * 100}%`, height: "100%", borderRadius: 99, background: "#CBD5E1", transition: "width 0.6s ease" }} />
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4, paddingTop: 8, borderTop: "1px solid #F3F4F6" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 12, color: "#6B7280", fontWeight: 600 }}>Overall match</span>
+                      {tag && idx !== 0 && (
+                        <span style={{ fontSize: 11, fontWeight: 700, padding: "1px 8px", borderRadius: 99, color: tag.color, background: tag.bg }}>{tag.label}</span>
+                      )}
+                    </div>
                     <span style={{
-                      fontSize: 13, fontWeight: 700,
+                      fontSize: 15, fontWeight: 800,
                       color: printer.score >= 0.8 ? "#15803D" : printer.score >= 0.6 ? "#C2410C" : "#6B7280"
                     }}>
                       {Math.round(printer.score * 100)}%
                     </span>
                   </div>
-                  <div className="match-score-track" style={{ height: 8, borderRadius: 99 }}>
-                    <div
-                      className="match-score-fill"
-                      style={{
-                        width: `${printer.score * 100}%`,
-                        height: "100%",
-                        borderRadius: 99,
-                        background: printer.score >= 0.8 ? "#22C55E" : printer.score >= 0.6 ? "#F97316" : "#9CA3AF",
-                        transition: "width 0.6s ease",
-                      }}
-                    />
+                  <div style={{ height: 7, borderRadius: 99, background: "#F3F4F6" }}>
+                    <div style={{
+                      width: `${printer.score * 100}%`, height: "100%", borderRadius: 99,
+                      background: printer.score >= 0.8 ? "#22C55E" : printer.score >= 0.6 ? "#F97316" : "#9CA3AF",
+                      transition: "width 0.6s ease",
+                    }} />
                   </div>
                 </div>
 
@@ -214,7 +244,8 @@ export default function MatchedPrinters({ metrics, settings, onSelect }: Props) 
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       <p style={{ textAlign: "center", fontSize: 12, color: "#9CA3AF", paddingTop: 8 }}>
         Owners have 2 hours to confirm. Auto-rematch if rejected.
