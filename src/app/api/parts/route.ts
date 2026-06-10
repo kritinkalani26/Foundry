@@ -24,7 +24,10 @@ export async function GET() {
       ],
     },
     orderBy: { updatedAt: "desc" },
-    include: { user: { select: { name: true } } },
+    include: {
+      user: { select: { name: true } },
+      team: { select: { id: true, name: true } },
+    },
   });
 
   return NextResponse.json(parts);

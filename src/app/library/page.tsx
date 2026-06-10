@@ -26,6 +26,7 @@ interface SavedPart {
   orderCount: number;
   lastOrderedAt?: string;
   teamId?: string;
+  team?: { id: string; name: string };
   createdAt: string;
   user?: { name: string };
 }
@@ -112,7 +113,14 @@ export default function LibraryPage() {
 
   const filtered = filter === "All" ? parts : parts.filter(p => p.process === filter);
   const personal = filtered.filter(p => !p.teamId);
-  const team = filtered.filter(p => p.teamId);
+
+  // Group team parts by their specific team
+  const teamGroups = new Map<string, { name: string; parts: SavedPart[] }>();
+  filtered.filter(p => p.teamId).forEach(p => {
+    const key = p.teamId!;
+    if (!teamGroups.has(key)) teamGroups.set(key, { name: p.team?.name ?? "Team", parts: [] });
+    teamGroups.get(key)!.parts.push(p);
+  });
 
   if (status === "loading") return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full" /></div>;
   if (status === "unauthenticated") return (
@@ -170,9 +178,9 @@ export default function LibraryPage() {
             {personal.length > 0 && (
               <Section title="My Parts" count={personal.length} parts={personal} reordering={reordering} deleting={deleting} onReorder={handleReorder} onDelete={handleDelete} />
             )}
-            {team.length > 0 && (
-              <Section title="Team Parts" count={team.length} parts={team} reordering={reordering} deleting={deleting} onReorder={handleReorder} onDelete={handleDelete} showOwner />
-            )}
+            {Array.from(teamGroups.entries()).map(([, group]) => (
+              <Section key={group.name} title={group.name} count={group.parts.length} parts={group.parts} reordering={reordering} deleting={deleting} onReorder={handleReorder} onDelete={handleDelete} showOwner />
+            ))}
           </div>
         )}
       </div>
