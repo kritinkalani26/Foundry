@@ -68,7 +68,8 @@ async function getOrder(id: string) {
         rating: true,
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("[getOrder] failed for id:", id, err);
     return null;
   }
 }
