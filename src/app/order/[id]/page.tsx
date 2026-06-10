@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Star, Package, MapPin, Clock, CheckCircle } from "lucide-react";
+import { ArrowLeft, Star, Package, MapPin, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import OrderTracker from "@/components/OrderTracker";
 import RatingWidget from "@/components/RatingWidget";
 import { formatINR } from "@/lib/utils";
@@ -9,7 +9,6 @@ interface PageProps {
   params: { id: string };
 }
 
-// Demo fallback order for when DB is unavailable
 const DEMO_ORDER = {
   id: "demo-order-123",
   status: "PRINTING" as OrderStatus,
@@ -19,6 +18,7 @@ const DEMO_ORDER = {
   quantity: 2,
   totalPrice: 570,
   estimatedPrice: 570,
+  notes: null as string | null,
   createdAt: new Date("2024-01-15T11:30:00Z"),
   estimatedCompletionAt: new Date("2024-01-17T18:00:00Z"),
   completionPhoto: null,
@@ -54,7 +54,6 @@ const DEMO_ORDER = {
 
 async function getOrder(id: string) {
   try {
-    // Dynamically import prisma to avoid build errors when DB is unavailable
     const { prisma } = await import("@/lib/prisma");
     return await prisma.order.findUnique({
       where: { id },
@@ -74,6 +73,23 @@ async function getOrder(id: string) {
   }
 }
 
+// Parse part/assembly info stored in the notes field by the bulk order route.
+// Format: "[Assembly: <name>] Part: <part> | Process: <process> | Material: <material>"
+function parseAssemblyNotes(notes: string | null) {
+  if (!notes) return null;
+  const assemblyMatch = notes.match(/\[Assembly:\s*([^\]]+)\]/);
+  const partMatch     = notes.match(/Part:\s*([^|]+)/);
+  const processMatch  = notes.match(/Process:\s*([^|]+)/);
+  const materialMatch = notes.match(/Material:\s*([^|]+)/);
+  if (!partMatch) return null;
+  return {
+    assemblyName: assemblyMatch?.[1]?.trim() ?? null,
+    partName:     partMatch[1]?.trim() ?? null,
+    process:      processMatch?.[1]?.trim() ?? null,
+    material:     materialMatch?.[1]?.trim() ?? null,
+  };
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
@@ -86,19 +102,31 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default async function OrderPage({ params }: PageProps) {
-  const dbOrder = await getOrder(params.id);
-
-  // Use demo data if DB order not found
-  const isDemo = !dbOrder;
-  const rawOrder = dbOrder ?? (params.id === "demo-order-123" ? DEMO_ORDER : null);
-
-  if (!rawOrder) {
-    // For non-demo IDs that don't exist in DB, show a demo page anyway
-    const order = { ...DEMO_ORDER, id: params.id };
-    return <OrderPageContent order={order} isDemo={true} />;
+  // Demo route
+  if (params.id === "demo-order-123") {
+    return <OrderPageContent order={DEMO_ORDER} isDemo={true} />;
   }
 
-  return <OrderPageContent order={rawOrder as typeof DEMO_ORDER} isDemo={isDemo} />;
+  const dbOrder = await getOrder(params.id);
+
+  if (!dbOrder) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#F9FAFB", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", maxWidth: 400, padding: "0 24px" }}>
+          <AlertCircle size={48} color="#E5E7EB" style={{ margin: "0 auto 16px" }} />
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: "#111827", marginBottom: 8 }}>Order not found</h2>
+          <p style={{ color: "#9CA3AF", fontSize: 14, marginBottom: 24 }}>
+            We couldn&apos;t load this order. It may have been removed or the link is incorrect.
+          </p>
+          <Link href="/dashboard/customer" className="btn btn-primary btn-md" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            ← Back to My Orders
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return <OrderPageContent order={dbOrder as typeof DEMO_ORDER} isDemo={false} />;
 }
 
 function OrderPageContent({
@@ -109,8 +137,10 @@ function OrderPageContent({
   isDemo: boolean;
 }) {
   const acceptedQuote = order.quotes[0];
-  const printerOwner = acceptedQuote?.printerOwner;
-  const canRate = order.status === "DELIVERED" && !order.rating;
+  const printerOwner  = acceptedQuote?.printerOwner;
+  const canRate       = order.status === "DELIVERED" && !order.rating;
+  const assemblyInfo  = parseAssemblyNotes(order.notes);
+  const isAssemblyOrder = !order.stlAnalysis && assemblyInfo;
 
   return (
     <div style={{ minHeight: "100vh", background: "#F9FAFB" }}>
@@ -144,8 +174,13 @@ function OrderPageContent({
 
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 28, gap: 16 }}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: "#111827" }}>Order Details</h1>
-            <p style={{ fontSize: 13, color: "#9CA3AF", fontFamily: "monospace", marginTop: 4 }}>{order.id}</p>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: "#111827" }}>
+              {isAssemblyOrder ? (assemblyInfo.partName ?? "Part Order") : "Order Details"}
+            </h1>
+            {isAssemblyOrder && assemblyInfo.assemblyName && (
+              <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 2 }}>From assembly: {assemblyInfo.assemblyName}</p>
+            )}
+            <p style={{ fontSize: 12, color: "#D1D5DB", fontFamily: "monospace", marginTop: 4 }}>{order.id}</p>
           </div>
           <div style={{
             display: "inline-flex", alignItems: "center",
@@ -180,7 +215,6 @@ function OrderPageContent({
               />
             </div>
 
-            {/* Rating */}
             {canRate && printerOwner && (
               <RatingWidget
                 orderId={order.id}
@@ -189,10 +223,7 @@ function OrderPageContent({
               />
             )}
             {order.rating && (
-              <div style={{
-                background: "#F0FDF4", border: "1px solid #BBF7D0",
-                borderRadius: 16, padding: "20px 24px",
-              }}>
+              <div style={{ background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: 16, padding: "20px 24px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <Star size={18} color="#FBBF24" fill="#FBBF24" />
                   <span style={{ fontWeight: 700, color: "#15803D", fontSize: 14 }}>You rated this order</span>
@@ -203,37 +234,47 @@ function OrderPageContent({
 
           {/* Right: Details sidebar */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Model info */}
+
+            {/* Specs */}
             <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 20, padding: "20px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Package size={15} color="#F97316" />
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Print Specifications</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>
+                  {isAssemblyOrder ? "Part Details" : "Print Specifications"}
+                </h3>
               </div>
-              <div>
-                {order.stlAnalysis && (
-                  <>
-                    <Row label="File" value={order.stlAnalysis.fileName} />
-                    <Row label="Volume" value={`${order.stlAnalysis.volumeCm3.toFixed(2)} cm³`} />
-                    <Row
-                      label="Bounding Box"
-                      value={`${order.stlAnalysis.boundingBoxXMm.toFixed(0)}×${order.stlAnalysis.boundingBoxYMm.toFixed(0)}×${order.stlAnalysis.boundingBoxZMm.toFixed(0)} mm`}
-                    />
-                    <Row label="Triangles" value={order.stlAnalysis.triangleCount.toLocaleString()} />
-                    <Row label="Est. Print Time" value={`${order.stlAnalysis.estimatedPrintHours.toFixed(1)} hrs`} />
-                  </>
-                )}
-                <div style={{ borderTop: "1px solid #F3F4F6", margin: "10px 0" }} />
-                <Row label="Material" value={order.material} />
-                <Row label="Infill" value={`${Math.round(order.infillDensity * 100)}%`} />
-                <Row label="Layer Height" value={`${order.layerHeight}mm`} />
-                <Row label="Quantity" value={order.quantity.toString()} />
-              </div>
+
+              {isAssemblyOrder ? (
+                <>
+                  {assemblyInfo.partName     && <Row label="Part"     value={assemblyInfo.partName} />}
+                  {assemblyInfo.assemblyName && <Row label="Assembly" value={assemblyInfo.assemblyName} />}
+                  {assemblyInfo.process      && <Row label="Process"  value={assemblyInfo.process} />}
+                  {assemblyInfo.material     && <Row label="Material" value={assemblyInfo.material} />}
+                </>
+              ) : (
+                <>
+                  {order.stlAnalysis && (
+                    <>
+                      <Row label="File"          value={order.stlAnalysis.fileName} />
+                      <Row label="Volume"        value={`${order.stlAnalysis.volumeCm3.toFixed(2)} cm³`} />
+                      <Row label="Bounding Box"  value={`${order.stlAnalysis.boundingBoxXMm.toFixed(0)}×${order.stlAnalysis.boundingBoxYMm.toFixed(0)}×${order.stlAnalysis.boundingBoxZMm.toFixed(0)} mm`} />
+                      <Row label="Triangles"     value={order.stlAnalysis.triangleCount.toLocaleString()} />
+                      <Row label="Est. Print Time" value={`${order.stlAnalysis.estimatedPrintHours.toFixed(1)} hrs`} />
+                      <div style={{ borderTop: "1px solid #F3F4F6", margin: "10px 0" }} />
+                    </>
+                  )}
+                  <Row label="Material"     value={order.material} />
+                  <Row label="Infill"       value={`${Math.round(order.infillDensity * 100)}%`} />
+                  <Row label="Layer Height" value={`${order.layerHeight}mm`} />
+                  <Row label="Quantity"     value={order.quantity.toString()} />
+                </>
+              )}
             </div>
 
             {/* Printer owner */}
             {printerOwner && (
               <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 20, padding: "20px" }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 14 }}>Printer Owner</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827", marginBottom: 14 }}>Makerspace</h3>
                 <div style={{ fontWeight: 700, color: "#111827", fontSize: 14, marginBottom: 8 }}>
                   {printerOwner.businessName ?? printerOwner.user.name}
                 </div>
@@ -257,18 +298,14 @@ function OrderPageContent({
                 <Clock size={15} color="#F97316" />
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: "#111827" }}>Payment</h3>
               </div>
-              <Row
-                label="Order Total"
-                value={formatINR(order.totalPrice ?? order.estimatedPrice ?? 0)}
-              />
-              <Row label="Payment Status" value="Paid via UPI" />
+              <Row label="Estimated Total" value={formatINR(order.totalPrice ?? order.estimatedPrice ?? 0)} />
+              <Row label="Payment Status"  value={order.totalPrice ? "Paid" : "Pending"} />
               <Row
                 label="Order Date"
                 value={new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
               />
             </div>
 
-            {/* Customer dashboard CTA */}
             <Link
               href="/dashboard/customer"
               className="btn btn-outline btn-md"
