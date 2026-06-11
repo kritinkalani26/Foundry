@@ -50,7 +50,7 @@ export default function Navbar() {
             );
           })}
           <Link
-            href="/supplier/list"
+            href="/supplier"
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
               padding: "7px 14px", borderRadius: 8,
@@ -150,7 +150,7 @@ export default function Navbar() {
             );
           })}
           <Link
-            href="/supplier/list"
+            href="/supplier"
             onClick={() => setOpen(false)}
             style={{
               display: "block", padding: "12px 14px", borderRadius: 10,
