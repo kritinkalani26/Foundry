@@ -149,9 +149,14 @@ function computeMetrics(
     triangles.length > 0 && height / Math.max(baseWidth, 1) > 2;
 
   // Estimated print time at default settings.
-  // 18 cm³/hr matches modern FDM printers (Bambu X1, Prusa MK4, fast Creality).
-  // Older/slower printers (Ender 3 stock) run ~8 cm³/hr, but they're the minority now.
-  const PRINT_SPEED_CM3_PER_HOUR = 18;
+  // Weighted average across typical Indian makerspace printer mix:
+  //   55% Ender 3/Pro/V2 @ 50 mm/s  → ~8 cm³/hr
+  //   20% Ender 3 V3 SE/KE @ 150 mm/s → ~17 cm³/hr
+  //   15% Creality K1/K1C @ 250 mm/s  → ~34 cm³/hr
+  //   10% Bambu Lab P1P/P1S @ 300 mm/s → ~40 cm³/hr
+  // Weighted effective rate ≈ 17 cm³/hr; using 14 as a conservative mid-point
+  // (smaller parts have more travel moves, reducing effective throughput).
+  const PRINT_SPEED_CM3_PER_HOUR = 14;
   const DEFAULT_INFILL = 0.30;
   const estimatedPrintHours =
     (volumeCm3 * DEFAULT_INFILL * 1.2) / PRINT_SPEED_CM3_PER_HOUR;
