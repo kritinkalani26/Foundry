@@ -17,7 +17,10 @@ const EQUIPMENT_TYPES = [
 
 type EquipmentId = typeof EQUIPMENT_TYPES[number]["id"];
 
-const CITIES = ["Kota","Indore","Patna","Nagpur","Bhopal","Varanasi","Ludhiana","Coimbatore","Surat","Hyderabad","Pune","Ahmedabad"];
+const CITIES = [
+  "Bengaluru","Mumbai","Delhi","Pune","Hyderabad","Chennai","Kolkata","Ahmedabad",
+  "Indore","Kota","Nagpur","Bhopal","Varanasi","Patna","Ludhiana","Coimbatore","Surat","Jaipur","Chandigarh",
+];
 
 const iStyle: React.CSSProperties = { width: "100%", padding: "12px 16px", border: "2px solid #E5E7EB", borderRadius: 12, fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", background: "#fff" };
 const lStyle: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 };
@@ -28,7 +31,7 @@ export default function ListEquipmentPage() {
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<EquipmentId | "">("");
   const [form, setForm] = useState({
-    name: "", phone: "", email: "", city: "",
+    name: "", phone: "", email: "", city: "", address: "", pincode: "",
     subtype: "", model: "", dimX: "", dimY: "", dimZ: "", extraA: "",
     materials: [] as string[], baseRate: "", hoursPerDay: "4", notes: "",
   });
@@ -42,7 +45,30 @@ export default function ListEquipmentPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1300));
+    try {
+      const res = await fetch("/api/supplier/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name, phone: form.phone, email: form.email,
+          city: form.city, address: form.address, pincode: form.pincode,
+          equipmentType: selectedId, subtype: form.subtype, model: form.model,
+          dimX: form.dimX, dimY: form.dimY, dimZ: form.dimZ, extraA: form.extraA,
+          materials: form.materials, baseRate: form.baseRate,
+          hoursPerDay: form.hoursPerDay, notes: form.notes,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Submission failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      alert("Network error. Please try again.");
+      setLoading(false);
+      return;
+    }
     setLoading(false);
     setSubmitted(true);
   }
@@ -95,6 +121,15 @@ export default function ListEquipmentPage() {
                   {CITIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
+            </div>
+            <div>
+              <label style={lStyle}>Business / Workshop Address</label>
+              <input style={iStyle} placeholder="e.g. Plot 12, KIADB Industrial Area, Electronic City" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required />
+              <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6 }}>Used to calculate distance from customers. Be as specific as possible.</p>
+            </div>
+            <div style={{ maxWidth: 220 }}>
+              <label style={lStyle}>Pincode</label>
+              <input style={iStyle} placeholder="560100" value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} maxLength={6} />
             </div>
           </div>
 

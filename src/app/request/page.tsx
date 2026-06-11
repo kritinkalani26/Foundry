@@ -772,6 +772,7 @@ function RequestPageContent() {
             <MatchedSuppliers
               serviceKey={serviceKey}
               estimatedPrice={mlEstimate ?? 800}
+              customerCity={form.city || userProfile?.city || undefined}
               onSelect={handleSupplierSelected}
             />
           </div>

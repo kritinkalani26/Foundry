@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Star, Clock, TrendingUp, CheckCircle, Loader2 } from "lucide-react";
 
 interface Supplier {
@@ -21,62 +21,36 @@ interface Supplier {
 interface Props {
   serviceKey: string;
   estimatedPrice: number;
+  customerCity?: string;
   onSelect: (supplierId: string) => void;
 }
 
-const DEMO: Supplier[] = [
-  {
-    id: "sup-demo-1",
-    businessName: "BeMakerHub Bengaluru",
-    description: "Full-service fabrication lab — laser cutting, CNC, sheet metal, and more. ISO 9001 certified, 8 years experience.",
-    rating: 4.7,
-    totalRatings: 187,
-    surgeMultiplier: 1.0,
-    distanceKm: 2.1,
-    score: 0.91,
-    distScore: 1.0,
-    ratingScore: 0.94,
-    priceScore: 0.79,
-    turnaroundDays: 2,
-  },
-  {
-    id: "sup-demo-2",
-    businessName: "FabWorks Studio",
-    description: "Precision machining and fabrication for prototypes and small production runs.",
-    rating: 4.4,
-    totalRatings: 92,
-    surgeMultiplier: 1.15,
-    distanceKm: 5.8,
-    score: 0.55,
-    distScore: 0.63,
-    ratingScore: 0.61,
-    priceScore: 0.36,
-    turnaroundDays: 3,
-  },
-  {
-    id: "sup-demo-3",
-    businessName: "QuickFab Express",
-    description: "Fast-turnaround 2D cutting and engraving at competitive prices.",
-    rating: 4.1,
-    totalRatings: 54,
-    surgeMultiplier: 0.9,
-    distanceKm: 11.2,
-    score: 0.31,
-    distScore: 0.0,
-    ratingScore: 0.0,
-    priceScore: 1.0,
-    turnaroundDays: 1,
-  },
-];
-
-export default function MatchedSuppliers({ estimatedPrice, onSelect }: Props) {
+export default function MatchedSuppliers({ serviceKey, estimatedPrice, customerCity, onSelect }: Props) {
+  const [suppliers, setSuppliers] = useState<(Supplier & { quotedPrice: number })[]>([]);
+  const [isDemo, setIsDemo] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selecting, setSelecting] = useState<string | null>(null);
 
-  const base = estimatedPrice || 600;
-  const suppliers = DEMO.map((s, i) => ({
-    ...s,
-    quotedPrice: Math.round(base * s.surgeMultiplier * (i === 2 ? 0.88 : i === 1 ? 1.05 : 1.0)),
-  }));
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams({ serviceKey });
+    if (customerCity) params.set("city", customerCity);
+
+    fetch(`/api/suppliers/match?${params}`)
+      .then(r => r.json())
+      .then(data => {
+        const base = estimatedPrice || 600;
+        const raw: Supplier[] = data.suppliers ?? [];
+        const withPrice = raw.map((s, i) => ({
+          ...s,
+          quotedPrice: Math.round(base * s.surgeMultiplier * (i === 2 ? 0.88 : i === 1 ? 1.05 : 1.0)),
+        }));
+        setSuppliers(withPrice);
+        setIsDemo(data.isDemo ?? false);
+      })
+      .catch(() => setSuppliers([]))
+      .finally(() => setLoading(false));
+  }, [serviceKey, customerCity, estimatedPrice]);
 
   const cheapestId = [...suppliers].sort((a, b) => a.quotedPrice - b.quotedPrice)[0]?.id;
   const nearestId  = [...suppliers].sort((a, b) => a.distanceKm - b.distanceKm)[0]?.id;
@@ -96,8 +70,33 @@ export default function MatchedSuppliers({ estimatedPrice, onSelect }: Props) {
     setSelecting(null);
   }
 
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#9CA3AF" }}>
+        <Loader2 size={32} className="spin" style={{ margin: "0 auto 16px" }} />
+        <p style={{ fontSize: 15, fontWeight: 600, color: "#6B7280" }}>Finding suppliers near you…</p>
+      </div>
+    );
+  }
+
+  if (suppliers.length === 0) {
+    return (
+      <div style={{ textAlign: "center", padding: "60px 0", color: "#9CA3AF" }}>
+        <p style={{ fontSize: 15, fontWeight: 600, color: "#6B7280" }}>No suppliers found in your area yet.</p>
+        <p style={{ fontSize: 13, marginTop: 8 }}>We&apos;re growing our network — check back soon.</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 720, margin: "0 auto" }}>
+      {isDemo && (
+        <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 10, padding: "10px 16px", fontSize: 12, color: "#92400E", display: "flex", alignItems: "center", gap: 6 }}>
+          <MapPin size={12} />
+          Demo results — distances shown are calculated from <strong>{customerCity ?? "your city"}</strong>. Real suppliers will appear here once they join your area.
+        </div>
+      )}
+
       {suppliers.map((s, idx) => {
         const tag = getTag(s, idx);
         return (

@@ -12,7 +12,7 @@ function SignupContent() {
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", confirm: "",
-    role: "CUSTOMER", city: "",
+    role: "CUSTOMER", city: "", address: "", pincode: "",
   });
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,7 @@ function SignupContent() {
       body: JSON.stringify({
         name: form.name, email: form.email, phone: form.phone,
         password: form.password, role: form.role, city: form.city,
+        address: form.address, pincode: form.pincode,
       }),
     });
     const data = await res.json();
@@ -98,7 +99,20 @@ function SignupContent() {
             <div>
               <label style={labelStyle}>City</label>
               <input type="text" value={form.city} onChange={e => set("city", e.target.value)}
-                placeholder="Indore, Kota, Patna…" style={inputStyle} />
+                placeholder="Bengaluru, Mumbai, Delhi…" style={inputStyle} />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Street Address <span style={{ fontWeight: 400, color: "#9CA3AF", fontSize: 12 }}>(optional)</span></label>
+              <input type="text" value={form.address} onChange={e => set("address", e.target.value)}
+                placeholder="e.g. 42 MG Road, Koramangala" style={inputStyle} />
+              <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 4 }}>Used to calculate distance to nearby makerspaces</p>
+            </div>
+
+            <div>
+              <label style={labelStyle}>Pincode <span style={{ fontWeight: 400, color: "#9CA3AF", fontSize: 12 }}>(optional)</span></label>
+              <input type="text" value={form.pincode} onChange={e => set("pincode", e.target.value)}
+                placeholder="560034" style={inputStyle} maxLength={6} />
             </div>
 
             <div>

@@ -2,23 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
-  "Bengaluru": { lat: 12.9716, lng: 77.5946 },
-  "Bangalore": { lat: 12.9716, lng: 77.5946 },
-  "Mumbai":    { lat: 19.0760, lng: 72.8777 },
-  "Delhi":     { lat: 28.7041, lng: 77.1025 },
-  "Pune":      { lat: 18.5204, lng: 73.8567 },
-  "Hyderabad": { lat: 17.3850, lng: 78.4867 },
-  "Chennai":   { lat: 13.0827, lng: 80.2707 },
-  "Indore":    { lat: 22.7196, lng: 75.8577 },
-  "Kolkata":   { lat: 22.5726, lng: 88.3639 },
-  "Kota":      { lat: 25.2138, lng: 75.8648 },
-  "Nagpur":    { lat: 21.1458, lng: 79.0882 },
-  "Bhopal":    { lat: 23.2599, lng: 77.4126 },
-  "Varanasi":  { lat: 25.3176, lng: 82.9739 },
-  "Patna":     { lat: 25.5941, lng: 85.1376 },
-};
+import { getCityCoords } from "@/lib/city-coords";
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,7 +32,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const customerId = session.user.id;
-    const coords = CITY_COORDS[city] ?? { lat: 12.9716, lng: 77.5946 };
+    const coords = getCityCoords(city) ?? { lat: 12.9716, lng: 77.5946 };
 
     // Encode specs in notes
     const parts: string[] = [`[Service: ${serviceKey}]`];

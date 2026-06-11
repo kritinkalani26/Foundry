@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { getCityCoords } from "@/lib/city-coords";
 
 function validatePassword(pw: string): string | null {
   if (pw.length < 8)              return "Password must be at least 8 characters.";
@@ -21,7 +22,7 @@ function normalizePhone(raw: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, role, city, phone } = await req.json();
+    const { name, email, password, role, city, phone, address, pincode } = await req.json();
 
     if (!name?.trim())    return NextResponse.json({ error: "Name is required." },  { status: 400 });
     if (!email?.trim())   return NextResponse.json({ error: "Email is required." }, { status: 400 });
@@ -48,13 +49,20 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
+    const cityCoords = city?.trim() ? getCityCoords(city.trim()) : null;
+    const fullAddress = [address?.trim(), pincode?.trim()].filter(Boolean).join(", ") || null;
+
+    const db = prisma as any;
+    const user = await db.user.create({
       data: {
         name:         name.trim(),
         email:        email.toLowerCase(),
         passwordHash,
         role:         role === "PRINTER_OWNER" ? "PRINTER_OWNER" : "CUSTOMER",
         city:         city?.trim() || null,
+        address:      fullAddress,
+        lat:          cityCoords?.lat ?? null,
+        lng:          cityCoords?.lng ?? null,
         phone:        normalizedPhone ?? null,
       },
     });

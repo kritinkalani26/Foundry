@@ -52,6 +52,7 @@ model User {
   phone               String?   @unique
   phoneVerified       Boolean   @default(false)
   role                Role      @default(CUSTOMER)
+  address             String?
   city                String?
   lat                 Float?
   lng                 Float?
@@ -160,6 +161,13 @@ model PrinterOwner {
   pendingPayout   Float    @default(0.0)
   bankAccount     String?
   bankIfsc        String?
+  // Business location (may differ from owner's personal address)
+  businessAddress String?
+  businessCity    String?
+  businessLat     Float?
+  businessLng     Float?
+  // Services offered: "3d-printer" | "laser-cutter" | "cnc-mill" | etc.
+  services        String[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
