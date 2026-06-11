@@ -12,7 +12,7 @@ function SignupContent() {
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", confirm: "",
-    role: "CUSTOMER", city: "", address: "", pincode: "",
+    city: "", address: "", pincode: "",
   });
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@ function SignupContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: form.name, email: form.email, phone: form.phone,
-        password: form.password, role: form.role, city: form.city,
+        password: form.password, city: form.city,
         address: form.address, pincode: form.pincode,
       }),
     });
@@ -113,28 +113,6 @@ function SignupContent() {
               <label style={labelStyle}>Pincode <span style={{ fontWeight: 400, color: "#9CA3AF", fontSize: 12 }}>(optional)</span></label>
               <input type="text" value={form.pincode} onChange={e => set("pincode", e.target.value)}
                 placeholder="560034" style={inputStyle} maxLength={6} />
-            </div>
-
-            <div>
-              <label style={labelStyle}>I am a…</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[
-                  { value: "CUSTOMER",      label: "Customer",    sub: "I need fabrication work done" },
-                  { value: "PRINTER_OWNER", label: "Space Owner", sub: "I own equipment to rent out" },
-                ].map(opt => (
-                  <button
-                    key={opt.value} type="button" onClick={() => set("role", opt.value)}
-                    style={{
-                      padding: "12px 14px", borderRadius: 12, textAlign: "left", cursor: "pointer", fontFamily: "inherit",
-                      border: form.role === opt.value ? "2px solid #F97316" : "2px solid #E5E7EB",
-                      background: form.role === opt.value ? "#FFF7ED" : "#F9FAFB",
-                    }}
-                  >
-                    <p style={{ fontWeight: 700, fontSize: 13, color: form.role === opt.value ? "#C2410C" : "#111827" }}>{opt.label}</p>
-                    <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>{opt.sub}</p>
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div>

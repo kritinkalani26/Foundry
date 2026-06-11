@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, CheckCircle, Loader2, User, Phone, Mail } from "lucide-react";
 
 const EQUIPMENT_TYPES = [
   { id: "3d-printer",       emoji: "🖨️", label: "3D Printer",            subtypes: ["FDM", "SLA / MSLA", "Resin (DLP)"],           dimensionLabels: ["Bed X (mm)", "Bed Y (mm)", "Max Z (mm)"],         dimKeys: ["dimX","dimY","dimZ"] as const, dimPlaceholders: ["220","220","250"],   extraField: null,                                                      materials: ["PLA","ABS","PETG","TPU","Resin","Nylon","ASA"],             rateUnit: "per hour",    rateHint: "₹50–150/hr typical" },
@@ -35,6 +35,25 @@ export default function ListEquipmentPage() {
     subtype: "", model: "", dimX: "", dimY: "", dimZ: "", extraA: "",
     materials: [] as string[], baseRate: "", hoursPerDay: "4", notes: "",
   });
+  const [profile, setProfile] = useState<{ name: string; email: string; phone: string | null; city: string | null } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/account/profile")
+      .then(r => r.json())
+      .then(d => {
+        if (d.data) {
+          setProfile(d.data);
+          setForm(prev => ({
+            ...prev,
+            name:  d.data.name  ?? prev.name,
+            email: d.data.email ?? prev.email,
+            phone: d.data.phone ?? prev.phone,
+            city:  d.data.city  ?? prev.city,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const equipment = EQUIPMENT_TYPES.find((e) => e.id === selectedId);
 
@@ -81,14 +100,15 @@ export default function ListEquipmentPage() {
         </div>
         <h2 style={{ fontSize: 28, fontWeight: 800, color: "#111827", marginBottom: 12 }}>Application Submitted!</h2>
         <p style={{ color: "#6B7280", fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
-          Welcome, {form.name}! We&apos;ll verify your <strong>{equipment?.label}</strong> listing and onboard you within 24 hours.
+          Your <strong>{equipment?.label}</strong> listing is submitted. We&apos;ll verify and onboard you within 24 hours.
+          Your customer account stays active — you can order and supply from the same login.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="/dashboard/owner" className="btn btn-primary btn-lg" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-            View Supplier Dashboard <ArrowRight size={16} />
+            My Space Dashboard <ArrowRight size={16} />
           </a>
-          <a href="/supplier/certifications" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 20px", borderRadius: 12, fontSize: 15, fontWeight: 700, border: "2px solid #E5E7EB", color: "#374151", textDecoration: "none" }}>
-            Upload Certifications
+          <a href="/dashboard/customer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 20px", borderRadius: 12, fontSize: 15, fontWeight: 700, border: "2px solid #E5E7EB", color: "#374151", textDecoration: "none" }}>
+            My Orders
           </a>
         </div>
       </div>
@@ -105,15 +125,34 @@ export default function ListEquipmentPage() {
       <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 24, padding: "clamp(20px, 5vw, 40px)" }}>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
-          {/* Personal details */}
+          {/* Personal details — read-only if logged in */}
           <div>
             <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", marginBottom: 16 }}>Your Details</p>
-            <div className="req-form-2col" style={{ marginBottom: 16 }}>
-              <div><label style={lStyle}>Full Name</label><input style={iStyle} placeholder="Rahul Sharma" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-              <div><label style={lStyle}>Phone</label><input style={iStyle} placeholder="9876543210" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></div>
-            </div>
-            <div className="req-form-2col">
-              <div><label style={lStyle}>Email</label><input style={iStyle} type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+            {profile ? (
+              <div style={{ padding: "14px 18px", background: "#F9FAFB", border: "1px solid #E5E7EB", borderRadius: 14, marginBottom: 16 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 10 }}>Pulled from your account</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#374151" }}>
+                    <User size={13} color="#9CA3AF" /> {profile.name}
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#374151" }}>
+                    <Mail size={13} color="#9CA3AF" /> {profile.email}
+                  </span>
+                  {profile.phone && (
+                    <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#374151" }}>
+                      <Phone size={13} color="#9CA3AF" /> {profile.phone}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="req-form-2col" style={{ marginBottom: 16 }}>
+                <div><label style={lStyle}>Full Name</label><input style={iStyle} placeholder="Rahul Sharma" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
+                <div><label style={lStyle}>Phone</label><input style={iStyle} placeholder="9876543210" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required /></div>
+              </div>
+            )}
+            <div className={profile ? "" : "req-form-2col"}>
+              {!profile && <div><label style={lStyle}>Email</label><input style={iStyle} type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>}
               <div>
                 <label style={lStyle}>City</label>
                 <select style={{ ...iStyle, cursor: "pointer" }} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required>

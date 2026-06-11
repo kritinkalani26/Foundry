@@ -49,10 +49,8 @@ export default function Navbar() {
               </Link>
             );
           })}
-          <a
-            href="/supplier"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/supplier/list"
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
               padding: "7px 14px", borderRadius: 8,
@@ -62,8 +60,8 @@ export default function Navbar() {
               whiteSpace: "nowrap",
             }}
           >
-            Become a Supplier ↗
-          </a>
+            List Your Equipment
+          </Link>
 
           {session ? (
             <div style={{ position: "relative", marginLeft: 12 }}>
@@ -85,11 +83,9 @@ export default function Navbar() {
                   <Link href="/dashboard/customer" onClick={() => setUserMenu(false)} style={{ display: "block", padding: "9px 14px", fontSize: 13, color: "#374151", textDecoration: "none", borderRadius: 8 }}>
                     My Orders
                   </Link>
-                  {session.user.role === "PRINTER_OWNER" && (
-                    <Link href="/dashboard/owner" onClick={() => setUserMenu(false)} style={{ display: "block", padding: "9px 14px", fontSize: 13, color: "#374151", textDecoration: "none", borderRadius: 8 }}>
-                      Owner Dashboard
-                    </Link>
-                  )}
+                  <Link href="/dashboard/owner" onClick={() => setUserMenu(false)} style={{ display: "block", padding: "9px 14px", fontSize: 13, color: "#374151", textDecoration: "none", borderRadius: 8 }}>
+                    My Space
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 14px", fontSize: 13, color: "#DC2626", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", borderRadius: 8, marginTop: 2 }}
@@ -153,10 +149,8 @@ export default function Navbar() {
               </Link>
             );
           })}
-          <a
-            href="/supplier"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/supplier/list"
             onClick={() => setOpen(false)}
             style={{
               display: "block", padding: "12px 14px", borderRadius: 10,
@@ -164,8 +158,8 @@ export default function Navbar() {
               background: "#FFF7ED", textDecoration: "none", marginTop: 4,
             }}
           >
-            Become a Supplier ↗
-          </a>
+            List Your Equipment
+          </Link>
           {session ? (
             <button
               onClick={() => { handleSignOut(); setOpen(false); }}
