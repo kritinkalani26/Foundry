@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { Package, BarChart2, Shield } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { Package, BarChart2, Shield, User, LogOut } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/supplier/list",           label: "List Equipment",  icon: <Package size={14} /> },
@@ -12,7 +13,10 @@ const NAV_LINKS = [
 
 function SupplierHeader() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userMenu, setUserMenu] = useState(false);
 
   return (
     <header style={{
@@ -57,13 +61,44 @@ function SupplierHeader() {
           <a href="/" style={{ fontSize: 13, color: "#9CA3AF", textDecoration: "none", fontWeight: 500 }}>
             ← Foundry
           </a>
-          <a href="/auth/login" style={{
-            marginLeft: 8, padding: "8px 18px", borderRadius: 8,
-            background: "#111827", color: "#fff",
-            fontSize: 14, fontWeight: 700, textDecoration: "none",
-          }}>
-            Sign In
-          </a>
+          {session ? (
+            <div style={{ position: "relative", marginLeft: 8 }}>
+              <button
+                onClick={() => setUserMenu(!userMenu)}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", background: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, color: "#374151" }}
+              >
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg,#EA580C,#C2410C)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <User size={13} color="white" />
+                </div>
+                {session.user.name.split(" ")[0]}
+              </button>
+              {userMenu && (
+                <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,.10)", minWidth: 180, zIndex: 100, padding: 6 }}>
+                  <div style={{ padding: "10px 14px 8px", borderBottom: "1px solid #F3F4F6", marginBottom: 4 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{session.user.name}</p>
+                    <p style={{ fontSize: 11, color: "#9CA3AF" }}>{session.user.email}</p>
+                  </div>
+                  <a href="/dashboard/customer" onClick={() => setUserMenu(false)} style={{ display: "block", padding: "9px 14px", fontSize: 13, color: "#374151", textDecoration: "none", borderRadius: 8 }}>
+                    My Orders
+                  </a>
+                  <button
+                    onClick={() => { signOut({ redirect: false }).then(() => router.push("/")); }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 14px", fontSize: 13, color: "#DC2626", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", borderRadius: 8, marginTop: 2 }}
+                  >
+                    <LogOut size={13} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <a href="/auth/login" style={{
+              marginLeft: 8, padding: "8px 18px", borderRadius: 8,
+              background: "#111827", color: "#fff",
+              fontSize: 14, fontWeight: 700, textDecoration: "none",
+            }}>
+              Sign In
+            </a>
+          )}
         </nav>
 
         {/* Mobile hamburger */}
@@ -110,9 +145,18 @@ function SupplierHeader() {
             <a href="/" style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, color: "#6B7280", textDecoration: "none", border: "1px solid #E5E7EB" }}>
               ← Foundry
             </a>
-            <a href="/auth/login" style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, fontWeight: 700, background: "#111827", color: "#fff", textDecoration: "none" }}>
-              Sign In
-            </a>
+            {session ? (
+              <button
+                onClick={() => { signOut({ redirect: false }).then(() => router.push("/")); setMobileOpen(false); }}
+                style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, fontWeight: 700, background: "#111827", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Sign Out
+              </button>
+            ) : (
+              <a href="/auth/login" style={{ flex: 1, textAlign: "center", padding: "10px", borderRadius: 10, fontSize: 14, fontWeight: 700, background: "#111827", color: "#fff", textDecoration: "none" }}>
+                Sign In
+              </a>
+            )}
           </div>
         </div>
       )}
