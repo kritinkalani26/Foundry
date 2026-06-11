@@ -148,9 +148,10 @@ function computeMetrics(
     (Math.max(bbX, bbY, bbZ) > 45 && height > baseWidth * 1.5) ||
     triangles.length > 0 && height / Math.max(baseWidth, 1) > 2;
 
-  // Estimated print time at default settings:
-  // FDM speed ≈ 8 cm³/hour effective (accounts for travel, retraction, etc.)
-  const PRINT_SPEED_CM3_PER_HOUR = 8;
+  // Estimated print time at default settings.
+  // 18 cm³/hr matches modern FDM printers (Bambu X1, Prusa MK4, fast Creality).
+  // Older/slower printers (Ender 3 stock) run ~8 cm³/hr, but they're the minority now.
+  const PRINT_SPEED_CM3_PER_HOUR = 18;
   const DEFAULT_INFILL = 0.30;
   const estimatedPrintHours =
     (volumeCm3 * DEFAULT_INFILL * 1.2) / PRINT_SPEED_CM3_PER_HOUR;

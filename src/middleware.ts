@@ -8,5 +8,5 @@ export default withAuth({
 });
 
 export const config = {
-  matcher: ["/upload/:path*", "/dashboard/:path*", "/order/:path*"],
+  matcher: ["/upload/:path*", "/dashboard/:path*", "/order/:path*", "/request/:path*"],
 };
