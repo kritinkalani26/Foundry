@@ -28,11 +28,20 @@ export async function POST(req: NextRequest) {
 
     const customerId = session.user.id;
 
-    // Upload STL to Cloudinary if file provided
+    // Upload STL to Cloudinary if file provided — gracefully skip if not configured
     let analysisId: string | undefined;
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const { publicId, url } = await uploadSTLToCloudinary(buffer, file.name);
+
+      let cloudinaryPublicId: string | null = null;
+      let cloudinaryUrl: string | null = null;
+      try {
+        const result = await uploadSTLToCloudinary(buffer, file.name);
+        cloudinaryPublicId = result.publicId;
+        cloudinaryUrl = result.url;
+      } catch (uploadErr) {
+        console.warn("[orders/POST] Cloudinary upload skipped:", uploadErr);
+      }
 
       const analysis = await prisma.sTLAnalysis.create({
         data: {
@@ -46,8 +55,8 @@ export async function POST(req: NextRequest) {
           triangleCount: metrics.triangleCount,
           estimatedPrintHours: metrics.estimatedPrintHours,
           needsSupport: metrics.needsSupport,
-          cloudinaryPublicId: publicId,
-          cloudinaryUrl: url,
+          cloudinaryPublicId,
+          cloudinaryUrl,
         },
       });
       analysisId = analysis.id;

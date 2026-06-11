@@ -25,6 +25,7 @@ export default function UploadPage() {
   const [settings, setSettings] = useState<PrintSettings>({ material: "PLA", infillDensity: 0.30, layerHeight: 0.20, quantity: 1 });
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderError, setOrderError] = useState<string>("");
 
   const currentIndex = STEPS.findIndex((s) => s.key === step);
 
@@ -42,6 +43,7 @@ export default function UploadPage() {
 
   async function handlePrinterSelected(printerId: string) {
     if (!stlFile || !metrics || !priceBreakdown) return;
+    setOrderError("");
     const formData = new FormData();
     formData.append("file", stlFile);
     formData.append("metrics", JSON.stringify(metrics));
@@ -54,12 +56,14 @@ export default function UploadPage() {
 
     try {
       const res = await fetch("/api/orders", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.data?.id) setOrderId(data.data.id);
-    } catch { /* use demo id */ }
-
-    setOrderId((prev) => prev ?? "demo-order-123");
-    setStep("pay");
+      const data = await res.json() as { data?: { id: string }; error?: string };
+      if (!res.ok) throw new Error(data.error || "Failed to create order");
+      if (!data.data?.id) throw new Error("No order ID returned");
+      setOrderId(data.data.id);
+      setStep("pay");
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Failed to create order. Please try again.");
+    }
   }
 
   return (
@@ -196,6 +200,11 @@ export default function UploadPage() {
               </h1>
               <p style={{ color: "#9CA3AF", fontSize: 15 }}>Ranked by proximity · rating · price</p>
             </div>
+            {orderError && (
+              <div style={{ maxWidth: 720, margin: "0 auto 20px", background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 12, padding: "12px 16px", color: "#DC2626", fontSize: 14 }}>
+                {orderError}
+              </div>
+            )}
             <MatchedPrinters
               metrics={metrics}
               settings={settings}
@@ -206,9 +215,9 @@ export default function UploadPage() {
         )}
 
         {/* STEP 4 — PAY */}
-        {step === "pay" && priceBreakdown && (
+        {step === "pay" && priceBreakdown && orderId && (
           <div style={{ maxWidth: 480, margin: "0 auto" }}>
-            <UPIPayment orderId={orderId ?? "demo-order-123"} amount={priceBreakdown.finalPrice} />
+            <UPIPayment orderId={orderId} amount={priceBreakdown.finalPrice} />
           </div>
         )}
       </div>

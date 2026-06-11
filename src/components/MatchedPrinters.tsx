@@ -53,10 +53,22 @@ export default function MatchedPrinters({ metrics, settings, onSelect }: Props) 
       triangleCount: metrics.triangleCount.toString(),
       needsSupport: metrics.needsSupport.toString(),
     });
+
+    // Filter demo entries the same way the real algorithm does:
+    // must support the requested material AND fit within a printer's build volume.
+    const demoFiltered = DEMO.filter(p =>
+      p.printers.some(pr =>
+        pr.materials.includes(settings.material) &&
+        metrics.boundingBoxXMm <= pr.maxBuildX &&
+        metrics.boundingBoxYMm <= pr.maxBuildY &&
+        metrics.boundingBoxZMm <= pr.maxBuildZ
+      )
+    );
+
     fetch(`/api/printers/match?${params}`)
       .then((r) => r.json())
-      .then((d) => setPrinters(d.data?.length ? d.data : DEMO))
-      .catch(() => setPrinters(DEMO))
+      .then((d) => setPrinters(d.data?.length ? d.data : demoFiltered))
+      .catch(() => setPrinters(demoFiltered))
       .finally(() => setLoading(false));
   }, [metrics, settings]);
 
