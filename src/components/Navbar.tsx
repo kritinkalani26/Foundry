@@ -60,7 +60,7 @@ export default function Navbar() {
               whiteSpace: "nowrap",
             }}
           >
-            List Your Equipment
+            Become a Supplier
           </Link>
 
           {session ? (
@@ -158,7 +158,7 @@ export default function Navbar() {
               background: "#FFF7ED", textDecoration: "none", marginTop: 4,
             }}
           >
-            List Your Equipment
+            Become a Supplier
           </Link>
           {session ? (
             <button
